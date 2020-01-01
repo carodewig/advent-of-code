@@ -36,25 +36,79 @@ class Parser:
             return parameter
         return self.program[parameter]
 
+    def _get_params(self, instruction_len):
+        return self.program[self.index+1:self.index+instruction_len]
+
+    def _get_params_with_modes(self, instruction_len, param_modes):
+        return list(zip(self._get_params(instruction_len), param_modes))
+
     def _parse_instruction_opcode1(self, param_modes=list):
-        instructions = self.program[self.index+1:self.index+4]
-        self.program[instructions[2]] = self._get_value(instructions[0], param_modes[0]) + self._get_value(instructions[1], param_modes[1])
-        self.index += 4
+        instruction_len = 4
+        pms = self._get_params_with_modes(instruction_len, param_modes)
+
+        self.program[pms[2][0]] = self._get_value(*pms[0]) + self._get_value(*pms[1])
+        self.index += instruction_len
 
     def _parse_instruction_opcode2(self, param_modes=list):
-        instructions = self.program[self.index+1:self.index+4]
-        self.program[instructions[2]] = self._get_value(instructions[0], param_modes[0]) * self._get_value(instructions[1], param_modes[1])
-        self.index += 4
+        instruction_len = 4
+        pms = self._get_params_with_modes(instruction_len, param_modes)
+
+        self.program[pms[2][0]] = self._get_value(*pms[0]) * self._get_value(*pms[1])
+        self.index += instruction_len
 
     def _parse_instruction_opcode3(self, param_modes=list):
-        position = self.program[self.index + 1]
-        self.program[position] = int(input("--> "))
-        self.index += 2
+        instruction_len = 2
+        ps = self._get_params(instruction_len)
+
+        self.program[ps[0]] = int(input("--> "))
+        self.index += instruction_len
 
     def _parse_instruction_opcode4(self, param_modes=list):
-        value = self._get_value(self.program[self.index + 1], param_modes[0])
-        print(value)
-        self.index += 2
+        instruction_len = 2
+        pms = self._get_params_with_modes(instruction_len, param_modes)
+
+        print(self._get_value(*pms[0]))
+        self.index += instruction_len
+
+    def _parse_instruction_opcode5(self, param_modes=list):
+        instruction_len = 3
+        pms = self._get_params_with_modes(instruction_len, param_modes)
+
+        if self._get_value(*pms[0]):
+            self.index = self._get_value(*pms[1])
+        else:
+            self.index += instruction_len
+
+    def _parse_instruction_opcode6(self, param_modes=list):
+        instruction_len = 3
+        pms = self._get_params_with_modes(instruction_len, param_modes)
+
+        if not self._get_value(*pms[0]):
+            self.index = self._get_value(*pms[1])
+        else:
+            self.index += instruction_len
+
+    def _parse_instruction_opcode7(self, param_modes=list):
+        instruction_len = 4
+        pms = self._get_params_with_modes(instruction_len, param_modes)
+
+        if self._get_value(*pms[0]) < self._get_value(*pms[1]):
+            self.program[pms[2][0]] = 1
+        else:
+            self.program[pms[2][0]] = 0
+
+        self.index += instruction_len
+
+    def _parse_instruction_opcode8(self, param_modes=list):
+        instruction_len = 4
+        pms = self._get_params_with_modes(instruction_len, param_modes)
+
+        if self._get_value(*pms[0]) == self._get_value(*pms[1]):
+            self.program[pms[2][0]] = 1
+        else:
+            self.program[pms[2][0]] = 0
+
+        self.index += instruction_len
 
     # exit by setting index outside range of program
     def _parse_instruction_opcode99(self):
@@ -74,6 +128,14 @@ class Parser:
             self._parse_instruction_opcode3(param_modes)
         elif opcode == 4:
             self._parse_instruction_opcode4(param_modes)
+        elif opcode == 5:
+            self._parse_instruction_opcode5(param_modes)
+        elif opcode == 6:
+            self._parse_instruction_opcode6(param_modes)
+        elif opcode == 7:
+            self._parse_instruction_opcode7(param_modes)
+        elif opcode == 8:
+            self._parse_instruction_opcode8(param_modes)
         elif opcode == 99:
             self._parse_instruction_opcode99()
         else:
@@ -103,7 +165,15 @@ assert Parser([1, 1, 1, 4, 99, 5, 6, 0, 99]).parse() == 30
 assert Parser([1002, 4, 3, 4, 33]).parse_and_get_value_at_index(4) == 99
 assert Parser([1101, 100, -1, 4, 0]).parse_and_get_value_at_index(4) == 99
 
+# stdout test cases
+#Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]).parse() #input = 8, prints 1
+#Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]).parse() #input != 8, prints 0
+#Parser([3, 3, 1108, -1, 8, 3, 4, 3, 99]).parse() #input = 8, prints 1
+#Parser([3, 3, 1108, -1, 8, 3, 4, 3, 99]).parse() #input != 8, prints 0
+#Parser([3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]).parse() #input = 0, prints 0
+#Parser([3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]).parse() #input != 0, prints 1
+#Parser([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]).parse() #input = 0, prints 0
+#Parser([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]).parse() #input != 0, prints 1
 
 PROGRAM = Parser.init_from_file("data/05.txt")
 PROGRAM.parse()
-
