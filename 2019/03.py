@@ -6,6 +6,7 @@ https://adventofcode.com/2019/day/3
 import sys
 
 # probably should use a dict here (value = steps required) to make this faster
+# current structure is [(x, y, steps_required)]
 def points_hit_single_instruction(start_position, direction, distance):
     if direction == "R":
         return [(start_position[0] + x, start_position[1], start_position[2] + x) for x in range(1, distance+1)]
