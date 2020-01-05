@@ -10,6 +10,9 @@ import attr
 @attr.s(slots=True)
 class Parser:
     program = attr.ib(factory=list)
+    replace_reads_value = attr.ib(default=None)
+    return_rather_than_print = attr.ib(default=False)
+
     index = attr.ib(init=False, default=0)
     backup_program = attr.ib(init=False)
 
@@ -60,15 +63,25 @@ class Parser:
         instruction_len = 2
         ps = self._get_params(instruction_len)
 
-        self.program[ps[0]] = int(input("--> "))
+        if self.replace_reads_value:
+            value = self.replace_reads_value
+        else:
+            value = int(input("--> "))
+
+        self.program[ps[0]] = value
         self.index += instruction_len
 
     def _parse_instruction_opcode4(self, param_modes=list):
         instruction_len = 2
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
-        print(self._get_value(*pms[0]))
+        value = self._get_value(*pms[0])
         self.index += instruction_len
+
+        if self.return_rather_than_print:
+            return value
+
+        print(value)
 
     def _parse_instruction_opcode5(self, param_modes=list):
         instruction_len = 3
@@ -127,7 +140,8 @@ class Parser:
         elif opcode == 3:
             self._parse_instruction_opcode3(param_modes)
         elif opcode == 4:
-            self._parse_instruction_opcode4(param_modes)
+            if self.return_rather_than_print:
+                return self._parse_instruction_opcode4(param_modes)
         elif opcode == 5:
             self._parse_instruction_opcode5(param_modes)
         elif opcode == 6:
@@ -148,7 +162,9 @@ class Parser:
             self.program[2] = verb
 
         while self.index < len(self.program):
-            self._parse_instruction()
+            val = self._parse_instruction()
+            if val is not None and self.return_rather_than_print:
+                return val
 
         return self.program[0]
 
@@ -166,14 +182,14 @@ assert Parser([1002, 4, 3, 4, 33]).parse_and_get_value_at_index(4) == 99
 assert Parser([1101, 100, -1, 4, 0]).parse_and_get_value_at_index(4) == 99
 
 # stdout test cases
-#Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]).parse() #input = 8, prints 1
-#Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]).parse() #input != 8, prints 0
-#Parser([3, 3, 1108, -1, 8, 3, 4, 3, 99]).parse() #input = 8, prints 1
-#Parser([3, 3, 1108, -1, 8, 3, 4, 3, 99]).parse() #input != 8, prints 0
-#Parser([3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]).parse() #input = 0, prints 0
-#Parser([3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]).parse() #input != 0, prints 1
-#Parser([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]).parse() #input = 0, prints 0
-#Parser([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]).parse() #input != 0, prints 1
+assert Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=8, return_rather_than_print=True).parse() == 1
+assert Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=7, return_rather_than_print=True).parse() == 0
+assert Parser([3, 3, 1108, -1, 8, 3, 4, 3, 99], replace_reads_value=8, return_rather_than_print=True).parse() == 1
+assert Parser([3, 3, 1108, -1, 8, 3, 4, 3, 99], replace_reads_value=7, return_rather_than_print=True).parse() == 0
+assert Parser([3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9], replace_reads_value=0, return_rather_than_print=True).parse() == 0
+assert Parser([3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9], replace_reads_value=8, return_rather_than_print=True).parse() == 1
+assert Parser([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1], replace_reads_value=0, return_rather_than_print=True).parse() == 0
+assert Parser([3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1], replace_reads_value=8, return_rather_than_print=True).parse() == 1
 
 PROGRAM = Parser.init_from_file("data/05.txt")
 PROGRAM.parse()
