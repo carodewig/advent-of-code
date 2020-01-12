@@ -20,6 +20,9 @@ class Parser:
     def __attrs_post_init__(self):
         self.backup_program = list(self.program)
 
+    def is_alive(self):
+        return self.index < len(self.program)
+
     def reset(self):
         self.program = list(self.backup_program)
         self.index = 0
@@ -163,26 +166,24 @@ class Parser:
             self.program[1] = noun
             self.program[2] = verb
 
-        while self.index < len(self.program):
+        while self.is_alive():
             val = self._parse_instruction()
             if val is not None and self.return_rather_than_print:
                 return val
 
-        return self.program[0]
-
-    def parse_and_get_value_at_index(self, index):
+    def parse_and_get_value(self, index=0):
         self.parse()
         return self.program[index]
 
 
 def test_parser():
     # test cases
-    assert Parser([1, 0, 0, 0, 99]).parse() == 2
-    assert Parser([2, 3, 0, 3, 99]).parse() == 2
-    assert Parser([2, 4, 4, 5, 99, 0]).parse() == 2
-    assert Parser([1, 1, 1, 4, 99, 5, 6, 0, 99]).parse() == 30
-    assert Parser([1002, 4, 3, 4, 33]).parse_and_get_value_at_index(4) == 99
-    assert Parser([1101, 100, -1, 4, 0]).parse_and_get_value_at_index(4) == 99
+    assert Parser([1, 0, 0, 0, 99]).parse_and_get_value() == 2
+    assert Parser([2, 3, 0, 3, 99]).parse_and_get_value() == 2
+    assert Parser([2, 4, 4, 5, 99, 0]).parse_and_get_value() == 2
+    assert Parser([1, 1, 1, 4, 99, 5, 6, 0, 99]).parse_and_get_value() == 30
+    assert Parser([1002, 4, 3, 4, 33]).parse_and_get_value(4) == 99
+    assert Parser([1101, 100, -1, 4, 0]).parse_and_get_value(4) == 99
 
     # stdout test cases
     assert Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=[8], return_rather_than_print=True).parse() == 1
