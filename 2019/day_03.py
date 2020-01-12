@@ -9,13 +9,14 @@ import sys
 # current structure is [(x, y, steps_required)]
 def points_hit_single_instruction(start_position, direction, distance):
     if direction == "R":
-        return [(start_position[0] + x, start_position[1], start_position[2] + x) for x in range(1, distance+1)]
+        return [(start_position[0] + x, start_position[1], start_position[2] + x) for x in range(1, distance + 1)]
     if direction == "L":
-        return [(start_position[0] - x, start_position[1], start_position[2] + x) for x in range(1, distance+1)]
+        return [(start_position[0] - x, start_position[1], start_position[2] + x) for x in range(1, distance + 1)]
     if direction == "U":
-        return [(start_position[0], start_position[1] + x, start_position[2] + x) for x in range(1, distance+1)]
+        return [(start_position[0], start_position[1] + x, start_position[2] + x) for x in range(1, distance + 1)]
     if direction == "D":
-        return [(start_position[0], start_position[1] - x, start_position[2] + x) for x in range(1, distance+1)]
+        return [(start_position[0], start_position[1] - x, start_position[2] + x) for x in range(1, distance + 1)]
+
 
 def points_hit_by_wire(wire):
     points = []
@@ -27,6 +28,7 @@ def points_hit_by_wire(wire):
         position = points[-1]
 
     return set(points)
+
 
 def fewest_steps_to_intersection_point(wire1, wire2):
     min_steps = sys.maxsize
@@ -52,11 +54,14 @@ def fewest_steps_to_intersection_point(wire1, wire2):
 
     return min_steps
 
+
 def str_to_wire(wire_str):
     return wire_str.split(",")
 
+
 def closest_point_from_strs(wire1_str, wire2_str):
     return fewest_steps_to_intersection_point(str_to_wire(wire1_str), str_to_wire(wire2_str))
+
 
 def read_wire_strs_from_file(filename):
     with open(filename, "r") as f:
@@ -69,4 +74,4 @@ assert closest_point_from_strs("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51", "U
 
 WIRES = read_wire_strs_from_file("data/03.txt")
 if len(WIRES) > 1:
-    print(closest_point_from_strs(WIRES[0], WIRES[1])) #399
+    print(closest_point_from_strs(WIRES[0], WIRES[1]))  # 399

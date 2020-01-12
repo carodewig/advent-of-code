@@ -5,8 +5,10 @@ https://adventofcode.com/2019/day/1
 
 import math
 
+
 def compute_fuel(mass):
     return max(math.floor(mass / 3.0) - 2, 0)
+
 
 def compute_fuel_for_fuel(initial_mass):
     fuel = compute_fuel(initial_mass)
@@ -14,6 +16,7 @@ def compute_fuel_for_fuel(initial_mass):
         return fuel
 
     return fuel + compute_fuel_for_fuel(fuel)
+
 
 total_fuel = 0
 with open("data/01.txt", "r") as f:

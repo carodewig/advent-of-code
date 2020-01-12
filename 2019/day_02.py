@@ -15,7 +15,7 @@ def parse_program(program, noun=None, verb=None):
     while index < len(program):
         opcode = program[index]
         try:
-            input1, input2, output_position = program[index+1:index+instruction_length]
+            input1, input2, output_position = program[index + 1 : index + instruction_length]
         except ValueError:
             break
 
@@ -33,10 +33,12 @@ def parse_program(program, noun=None, verb=None):
 
     return program[0]
 
+
 def read_first_program_from_file(filename):
     with open(filename, "r") as f:
         for line in f.readlines():
             return [int(x) for x in line.strip().split(",")]
+
 
 # test cases
 assert parse_program([1, 0, 0, 0, 99]) == 2
@@ -48,4 +50,4 @@ PROGRAM = read_first_program_from_file("data/02.txt")
 for noun_opt in range(100):
     for verb_opt in range(100):
         if parse_program(list(PROGRAM), noun_opt, verb_opt) == 19690720:
-            print(100*noun_opt + verb_opt)
+            print(100 * noun_opt + verb_opt)
