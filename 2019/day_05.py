@@ -17,15 +17,19 @@ class Parser:
     index = attr.ib(init=False, default=0)
     backup_program = attr.ib(init=False)
 
+    relative_base = attr.ib(init=False, default=0)
+    alive = attr.ib(init=False, default=True)
+
     def __attrs_post_init__(self):
         self.backup_program = list(self.program)
 
     def is_alive(self):
-        return self.index < len(self.program)
+        return self.alive
 
     def reset(self):
         self.program = list(self.backup_program)
         self.index = 0
+        self.alive = True
 
     @classmethod
     def init_from_file_generator(cls, filename, **kwargs):
@@ -39,12 +43,34 @@ class Parser:
         for parser in Parser.init_from_file_generator(filename, **kwargs):
             return parser
 
+    def _get_value_program(self, index):
+        if index < len(self.program):
+            return self.program[index]
+
+        return 0
+
     def _get_value(self, parameter, mode):
-        if mode == 1:
-            return parameter
-        return self.program[parameter]
+        if mode == 0:
+            return self._get_value_program(parameter)
+
+        if mode == 2:
+            return self._get_value_program(self.relative_base + parameter)
+
+        return parameter
+
+    def _set_value(self, index, value):
+        if index < len(self.program):
+            self.program[index] = value
+        else:
+            print("EXTENDING")
+            self.program.extend([0 for _ in range(10+index-len(self.program))])
+            self.program[index] = value
 
     def _get_params(self, instruction_len):
+        if self.index + instruction_len >= len(self.program):
+            print("EXTENDING")
+            self.program.extend([0 for _ in range(10+self.index+instruction_len-len(self.program))])
+
         return self.program[self.index + 1 : self.index + instruction_len]
 
     def _get_params_with_modes(self, instruction_len, param_modes):
@@ -54,18 +80,19 @@ class Parser:
         instruction_len = 4
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
-        self.program[pms[2][0]] = self._get_value(*pms[0]) + self._get_value(*pms[1])
+        self._set_value(pms[2][0], self._get_value(*pms[0]) + self._get_value(*pms[1]))
         self.index += instruction_len
 
     def _parse_instruction_opcode2(self, param_modes=list):
         instruction_len = 4
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
-        self.program[pms[2][0]] = self._get_value(*pms[0]) * self._get_value(*pms[1])
+        self._set_value(pms[2][0], self._get_value(*pms[0]) * self._get_value(*pms[1]))
         self.index += instruction_len
 
     def _parse_instruction_opcode3(self, param_modes=list):
         instruction_len = 2
+        pms = self._get_params_with_modes(instruction_len, param_modes)
         ps = self._get_params(instruction_len)
 
         if self.replace_reads_value:
@@ -73,7 +100,11 @@ class Parser:
         else:
             value = int(input("--> "))
 
-        self.program[ps[0]] = value
+        if pms[0][1] == 2:
+            self._set_value(ps[0] + self.relative_base, value)
+        else:
+            self._set_value(ps[0], value)
+
         self.index += instruction_len
 
     def _parse_instruction_opcode4(self, param_modes=list):
@@ -111,9 +142,9 @@ class Parser:
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
         if self._get_value(*pms[0]) < self._get_value(*pms[1]):
-            self.program[pms[2][0]] = 1
+            self._set_value(pms[2][0], 1)
         else:
-            self.program[pms[2][0]] = 0
+            self._set_value(pms[2][0], 0)
 
         self.index += instruction_len
 
@@ -122,15 +153,22 @@ class Parser:
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
         if self._get_value(*pms[0]) == self._get_value(*pms[1]):
-            self.program[pms[2][0]] = 1
+            self._set_value(pms[2][0], 1)
         else:
-            self.program[pms[2][0]] = 0
+            self._set_value(pms[2][0], 0)
+
+        self.index += instruction_len
+
+    def _parse_instruction_opcode9(self, param_modes=list):
+        instruction_len = 2
+        pms = self._get_params_with_modes(instruction_len, param_modes)
+        self.relative_base += self._get_value(*pms[0])
 
         self.index += instruction_len
 
     # exit by setting index outside range of program
     def _parse_instruction_opcode99(self):
-        self.index = len(self.program)
+        self.alive = False
 
     def _parse_instruction(self):
         opcode_with_params = f"{self.program[self.index]:05}"
@@ -145,8 +183,9 @@ class Parser:
         elif opcode == 3:
             self._parse_instruction_opcode3(param_modes)
         elif opcode == 4:
+            val = self._parse_instruction_opcode4(param_modes)
             if self.return_rather_than_print:
-                return self._parse_instruction_opcode4(param_modes)
+                return val
         elif opcode == 5:
             self._parse_instruction_opcode5(param_modes)
         elif opcode == 6:
@@ -155,6 +194,8 @@ class Parser:
             self._parse_instruction_opcode7(param_modes)
         elif opcode == 8:
             self._parse_instruction_opcode8(param_modes)
+        elif opcode == 9:
+            self._parse_instruction_opcode9(param_modes)
         elif opcode == 99:
             self._parse_instruction_opcode99()
         else:
@@ -166,7 +207,7 @@ class Parser:
             self.program[1] = noun
             self.program[2] = verb
 
-        while self.is_alive():
+        while self.alive:
             val = self._parse_instruction()
             if val is not None and self.return_rather_than_print:
                 return val

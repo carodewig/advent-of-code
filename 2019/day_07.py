@@ -26,7 +26,7 @@ class AmpSequence:
 
         last_value = None
         val = 0
-        while all([amp.is_alive() for amp in self.amps]):
+        while all([amp.alive for amp in self.amps]):
             for amp in self.amps:
                 amp.replace_reads_value.append(val)
                 val = amp.parse()
