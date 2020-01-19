@@ -1,3 +1,7 @@
+"""
+day 8: space image format
+https://adventofcode.com/2019/day/8
+"""
 
 import numpy as np
 

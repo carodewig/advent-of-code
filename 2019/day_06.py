@@ -1,3 +1,8 @@
+"""
+day 6: universal orbit map
+https://adventofcode.com/2019/day/6
+"""
+
 from collections import defaultdict
 
 import attr

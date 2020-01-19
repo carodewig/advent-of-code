@@ -29,6 +29,7 @@ class Parser:
     def reset(self):
         self.program = list(self.backup_program)
         self.index = 0
+        self.relative_base = 0
         self.alive = True
 
     @classmethod
@@ -58,11 +59,16 @@ class Parser:
 
         return parameter
 
+    def _get_value_write(self, parameter, mode):
+        if mode == 2:
+            return self.relative_base + parameter
+
+        return parameter
+
     def _set_value(self, index, value):
         if index < len(self.program):
             self.program[index] = value
         else:
-            print("EXTENDING")
             self.program.extend([0 for _ in range(10+index-len(self.program))])
             self.program[index] = value
 
@@ -80,14 +86,14 @@ class Parser:
         instruction_len = 4
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
-        self._set_value(pms[2][0], self._get_value(*pms[0]) + self._get_value(*pms[1]))
+        self._set_value(self._get_value_write(*pms[2]), self._get_value(*pms[0]) + self._get_value(*pms[1]))
         self.index += instruction_len
 
     def _parse_instruction_opcode2(self, param_modes=list):
         instruction_len = 4
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
-        self._set_value(pms[2][0], self._get_value(*pms[0]) * self._get_value(*pms[1]))
+        self._set_value(self._get_value_write(*pms[2]), self._get_value(*pms[0]) * self._get_value(*pms[1]))
         self.index += instruction_len
 
     def _parse_instruction_opcode3(self, param_modes=list):
@@ -142,9 +148,9 @@ class Parser:
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
         if self._get_value(*pms[0]) < self._get_value(*pms[1]):
-            self._set_value(pms[2][0], 1)
+            self._set_value(self._get_value_write(*pms[2]), 1)
         else:
-            self._set_value(pms[2][0], 0)
+            self._set_value(self._get_value_write(*pms[2]), 0)
 
         self.index += instruction_len
 
@@ -153,9 +159,9 @@ class Parser:
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
         if self._get_value(*pms[0]) == self._get_value(*pms[1]):
-            self._set_value(pms[2][0], 1)
+            self._set_value(self._get_value_write(*pms[2]), 1)
         else:
-            self._set_value(pms[2][0], 0)
+            self._set_value(self._get_value_write(*pms[2]), 0)
 
         self.index += instruction_len
 
