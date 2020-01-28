@@ -9,7 +9,7 @@ import attr
 
 
 @attr.s(slots=True)
-class Parser:
+class IntcodeComputer:
     program = attr.ib(factory=list)
     replace_reads_value = attr.ib(factory=list)
     return_rather_than_print = attr.ib(default=False)
@@ -37,12 +37,12 @@ class Parser:
         with open(filename, "r") as file:
             for line in file.readlines():
                 program_raw = [int(x) for x in line.strip().split(",")]
-                yield Parser(program=program_raw, **kwargs)
+                yield IntcodeComputer(program=program_raw, **kwargs)
 
     @classmethod
     def init_from_file(cls, filename, **kwargs):
-        for parser in Parser.init_from_file_generator(filename, **kwargs):
-            return parser
+        for intcode_computer in IntcodeComputer.init_from_file_generator(filename, **kwargs):
+            return intcode_computer
 
     def _get_value_program(self, index):
         if index < len(self.program):
@@ -223,40 +223,40 @@ class Parser:
         return self.program[index]
 
 
-def test_parser():
+def test_intcode_computer():
     # test cases
-    assert Parser([1, 0, 0, 0, 99]).parse_and_get_value() == 2
-    assert Parser([2, 3, 0, 3, 99]).parse_and_get_value() == 2
-    assert Parser([2, 4, 4, 5, 99, 0]).parse_and_get_value() == 2
-    assert Parser([1, 1, 1, 4, 99, 5, 6, 0, 99]).parse_and_get_value() == 30
-    assert Parser([1002, 4, 3, 4, 33]).parse_and_get_value(4) == 99
-    assert Parser([1101, 100, -1, 4, 0]).parse_and_get_value(4) == 99
+    assert IntcodeComputer([1, 0, 0, 0, 99]).parse_and_get_value() == 2
+    assert IntcodeComputer([2, 3, 0, 3, 99]).parse_and_get_value() == 2
+    assert IntcodeComputer([2, 4, 4, 5, 99, 0]).parse_and_get_value() == 2
+    assert IntcodeComputer([1, 1, 1, 4, 99, 5, 6, 0, 99]).parse_and_get_value() == 30
+    assert IntcodeComputer([1002, 4, 3, 4, 33]).parse_and_get_value(4) == 99
+    assert IntcodeComputer([1101, 100, -1, 4, 0]).parse_and_get_value(4) == 99
 
     # stdout test cases
-    assert Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=[8], return_rather_than_print=True).parse() == 1
-    assert Parser([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=[7], return_rather_than_print=True).parse() == 0
-    assert Parser([3, 3, 1108, -1, 8, 3, 4, 3, 99], replace_reads_value=[8], return_rather_than_print=True).parse() == 1
-    assert Parser([3, 3, 1108, -1, 8, 3, 4, 3, 99], replace_reads_value=[7], return_rather_than_print=True).parse() == 0
+    assert IntcodeComputer([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=[8], return_rather_than_print=True).parse() == 1
+    assert IntcodeComputer([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=[7], return_rather_than_print=True).parse() == 0
+    assert IntcodeComputer([3, 3, 1108, -1, 8, 3, 4, 3, 99], replace_reads_value=[8], return_rather_than_print=True).parse() == 1
+    assert IntcodeComputer([3, 3, 1108, -1, 8, 3, 4, 3, 99], replace_reads_value=[7], return_rather_than_print=True).parse() == 0
     assert (
-        Parser(
+        IntcodeComputer(
             [3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9], replace_reads_value=[0], return_rather_than_print=True
         ).parse()
         == 0
     )
     assert (
-        Parser(
+        IntcodeComputer(
             [3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9], replace_reads_value=[8], return_rather_than_print=True
         ).parse()
         == 1
     )
     assert (
-        Parser(
+        IntcodeComputer(
             [3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1], replace_reads_value=[0], return_rather_than_print=True
         ).parse()
         == 0
     )
     assert (
-        Parser(
+        IntcodeComputer(
             [3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1], replace_reads_value=[8], return_rather_than_print=True
         ).parse()
         == 1
@@ -264,7 +264,7 @@ def test_parser():
 
 
 if __name__ == "__main__":
-    test_parser()
+    test_intcode_computer()
 
-    PROGRAM = Parser.init_from_file("data/05.txt")
+    PROGRAM = IntcodeComputer.init_from_file("data/05.txt")
     PROGRAM.parse()

@@ -6,7 +6,7 @@ https://adventofcode.com/2019/day/7
 from itertools import permutations
 import attr
 
-from day_05 import Parser, test_parser
+from day_05 import IntcodeComputer, test_intcode_computer
 
 
 @attr.s(slots=True)
@@ -19,11 +19,11 @@ class AmpSequence:
 
     @classmethod
     def init_from_file(cls, filename):
-        return AmpSequence(amps=[Parser.init_from_file(filename, return_rather_than_print=True) for _ in range(5)])
+        return AmpSequence(amps=[IntcodeComputer.init_from_file(filename, return_rather_than_print=True) for _ in range(5)])
 
     @classmethod
     def init_from_list(cls, l):
-        return AmpSequence(amps=[Parser(list(l), return_rather_than_print=True) for _ in range(5)])
+        return AmpSequence(amps=[IntcodeComputer(list(l), return_rather_than_print=True) for _ in range(5)])
 
     def get_amplification(self, phases):
         for index in range(len(self.amps)):
@@ -205,7 +205,7 @@ def test_amplifiers():
 
 
 if __name__ == "__main__":
-    test_parser()
+    test_intcode_computer()
     test_amplifiers()
 
     AMPS = AmpSequence.init_from_file("data/07.txt")
