@@ -19,22 +19,22 @@ class AmpSequence:
 
     @classmethod
     def init_from_file(cls, filename):
-        return AmpSequence(amps=[IntcodeComputer.init_from_file(filename, return_rather_than_print=True) for _ in range(5)])
+        return AmpSequence(amps=[IntcodeComputer.init_from_file(filename, replace_stdout=True) for _ in range(5)])
 
     @classmethod
     def init_from_list(cls, l):
-        return AmpSequence(amps=[IntcodeComputer(list(l), return_rather_than_print=True) for _ in range(5)])
+        return AmpSequence(amps=[IntcodeComputer(list(l), replace_stdout=True) for _ in range(5)])
 
     def get_amplification(self, phases):
         for index in range(len(self.amps)):
-            self.amps[index].replace_reads_value = [phases[index]]
+            self.amps[index].replace_stdin = [phases[index]]
 
         last_value = None
         val = 0
         while all([amp.alive for amp in self.amps]):
             for amp in self.amps:
-                amp.replace_reads_value.append(val)
-                val = amp.parse()
+                amp.replace_stdin.append(val)
+                val = amp.parse_and_get_first_value()
 
             if val is not None:
                 last_value = val

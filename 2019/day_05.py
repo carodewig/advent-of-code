@@ -11,16 +11,18 @@ import attr
 @attr.s(slots=True)
 class IntcodeComputer:
     program = attr.ib(factory=list)
-    replace_reads_value = attr.ib(factory=list)
-    return_rather_than_print = attr.ib(default=False)
+
+    replace_stdin = attr.ib(factory=list)
+    replace_stdout = attr.ib(default=False)
 
     index = attr.ib(init=False, default=0)
-    backup_program = attr.ib(init=False)
-
     relative_base = attr.ib(init=False, default=0)
     alive = attr.ib(init=False, default=True)
 
+    backup_program = attr.ib(init=False)
+
     def __attrs_post_init__(self):
+        self.program = list(self.program)
         self.backup_program = list(self.program)
 
     def is_alive(self):
@@ -31,6 +33,7 @@ class IntcodeComputer:
         self.index = 0
         self.relative_base = 0
         self.alive = True
+        self.replace_stdin = list()
 
     @classmethod
     def init_from_file_generator(cls, filename, **kwargs):
@@ -69,13 +72,12 @@ class IntcodeComputer:
         if index < len(self.program):
             self.program[index] = value
         else:
-            self.program.extend([0 for _ in range(10+index-len(self.program))])
+            self.program.extend([0 for _ in range(10 + index - len(self.program))])
             self.program[index] = value
 
     def _get_params(self, instruction_len):
         if self.index + instruction_len >= len(self.program):
-            print("EXTENDING")
-            self.program.extend([0 for _ in range(10+self.index+instruction_len-len(self.program))])
+            self.program.extend([0 for _ in range(10 + self.index + instruction_len - len(self.program))])
 
         return self.program[self.index + 1 : self.index + instruction_len]
 
@@ -101,8 +103,8 @@ class IntcodeComputer:
         pms = self._get_params_with_modes(instruction_len, param_modes)
         ps = self._get_params(instruction_len)
 
-        if self.replace_reads_value:
-            value = self.replace_reads_value.pop(0)
+        if self.replace_stdin:
+            value = self.replace_stdin.pop(0)
         else:
             value = int(input("--> "))
 
@@ -120,7 +122,7 @@ class IntcodeComputer:
         value = self._get_value(*pms[0])
         self.index += instruction_len
 
-        if self.return_rather_than_print:
+        if self.replace_stdout:
             return value
 
         print(value)
@@ -190,7 +192,7 @@ class IntcodeComputer:
             self._parse_instruction_opcode3(param_modes)
         elif opcode == 4:
             val = self._parse_instruction_opcode4(param_modes)
-            if self.return_rather_than_print:
+            if self.replace_stdout:
                 return val
         elif opcode == 5:
             self._parse_instruction_opcode5(param_modes)
@@ -208,63 +210,77 @@ class IntcodeComputer:
             print(f"Bad opcode {opcode}!")
             raise ValueError
 
-    def parse(self, noun=None, verb=None):
+    def parse(self, noun=None, verb=None, stop_on_yield=False):
         if noun is not None and verb is not None:
             self.program[1] = noun
             self.program[2] = verb
 
         while self.alive:
             val = self._parse_instruction()
-            if val is not None and self.return_rather_than_print:
-                return val
+            if val is not None and self.replace_stdout:
+                yield val
 
-    def parse_and_get_value(self, index=0):
-        self.parse()
+                if stop_on_yield:
+                    return
+
+    def parse_and_get_value_at_index(self, index):
+        for _ in self.parse():
+            continue
+
         return self.program[index]
+
+    def parse_and_get_first_value(self):
+        self.replace_stdout = True
+        for val in self.parse(stop_on_yield=True):
+            return val
+
+    def parse_and_get_last_value(self):
+        self.replace_stdout = True
+
+        last_val = None
+        for val in self.parse():
+            last_val = val
+
+        return last_val
+
+    def run(self):
+        for _ in self.parse():
+            continue
 
 
 def test_intcode_computer():
     # test cases
-    assert IntcodeComputer([1, 0, 0, 0, 99]).parse_and_get_value() == 2
-    assert IntcodeComputer([2, 3, 0, 3, 99]).parse_and_get_value() == 2
-    assert IntcodeComputer([2, 4, 4, 5, 99, 0]).parse_and_get_value() == 2
-    assert IntcodeComputer([1, 1, 1, 4, 99, 5, 6, 0, 99]).parse_and_get_value() == 30
-    assert IntcodeComputer([1002, 4, 3, 4, 33]).parse_and_get_value(4) == 99
-    assert IntcodeComputer([1101, 100, -1, 4, 0]).parse_and_get_value(4) == 99
+    assert IntcodeComputer([1, 0, 0, 0, 99]).parse_and_get_value_at_index(0) == 2
+    assert IntcodeComputer([2, 3, 0, 3, 99]).parse_and_get_value_at_index(0) == 2
+    assert IntcodeComputer([2, 4, 4, 5, 99, 0]).parse_and_get_value_at_index(0) == 2
+    assert IntcodeComputer([1, 1, 1, 4, 99, 5, 6, 0, 99]).parse_and_get_value_at_index(0) == 30
+    assert IntcodeComputer([1002, 4, 3, 4, 33]).parse_and_get_value_at_index(4) == 99
+    assert IntcodeComputer([1101, 100, -1, 4, 0]).parse_and_get_value_at_index(4) == 99
 
-    # stdout test cases
-    assert IntcodeComputer([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=[8], return_rather_than_print=True).parse() == 1
-    assert IntcodeComputer([3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8], replace_reads_value=[7], return_rather_than_print=True).parse() == 0
-    assert IntcodeComputer([3, 3, 1108, -1, 8, 3, 4, 3, 99], replace_reads_value=[8], return_rather_than_print=True).parse() == 1
-    assert IntcodeComputer([3, 3, 1108, -1, 8, 3, 4, 3, 99], replace_reads_value=[7], return_rather_than_print=True).parse() == 0
-    assert (
-        IntcodeComputer(
-            [3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9], replace_reads_value=[0], return_rather_than_print=True
-        ).parse()
-        == 0
-    )
-    assert (
-        IntcodeComputer(
-            [3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9], replace_reads_value=[8], return_rather_than_print=True
-        ).parse()
-        == 1
-    )
-    assert (
-        IntcodeComputer(
-            [3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1], replace_reads_value=[0], return_rather_than_print=True
-        ).parse()
-        == 0
-    )
-    assert (
-        IntcodeComputer(
-            [3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1], replace_reads_value=[8], return_rather_than_print=True
-        ).parse()
-        == 1
-    )
+    # "stdout" test cases
+    test_program = [3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]
+    assert IntcodeComputer(test_program, replace_stdin=[8]).parse_and_get_first_value() == 1
+    assert IntcodeComputer(test_program, replace_stdin=[7]).parse_and_get_first_value() == 0
+
+    test_program = [3, 3, 1108, -1, 8, 3, 4, 3, 99]
+    assert IntcodeComputer(test_program, replace_stdin=[8]).parse_and_get_first_value() == 1
+    assert IntcodeComputer(test_program, replace_stdin=[7]).parse_and_get_first_value() == 0
+
+    test_program = [3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]
+    assert IntcodeComputer(test_program, replace_stdin=[0]).parse_and_get_first_value() == 0
+    assert IntcodeComputer(test_program, replace_stdin=[8]).parse_and_get_first_value() == 1
+
+    test_program = [3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
+    assert IntcodeComputer(test_program, replace_stdin=[0]).parse_and_get_first_value() == 0
+    assert IntcodeComputer(test_program, replace_stdin=[8]).parse_and_get_first_value() == 1
+
+    assert len(str(IntcodeComputer([1102, 34915192, 34915192, 7, 4, 7, 99, 0]).parse_and_get_first_value())) == 16
+    assert IntcodeComputer([104, 1125899906842624, 99]).parse_and_get_first_value() == 1125899906842624
+
 
 
 if __name__ == "__main__":
     test_intcode_computer()
 
     PROGRAM = IntcodeComputer.init_from_file("data/05.txt")
-    PROGRAM.parse()
+    print(PROGRAM.parse_and_get_last_value())
