@@ -5,16 +5,20 @@ https://adventofcode.com/2019/day/8
 
 import numpy as np
 
+
 def parse_image(img, width, height):
     return np.reshape([int(pix) for pix in img], (-1, height, width))
+
 
 def parse_image_from_file(filename, width, height):
     with open(filename, "r") as file:
         for line in file.readlines():
             return parse_image(line.strip(), width, height)
 
+
 def count_vals_in_layer(layer, val):
     return sum([1 if x == val else 0 for x in np.reshape(layer.view(), -1)])
+
 
 def test_for_corruption(img):
     min_zeros = None
@@ -26,6 +30,7 @@ def test_for_corruption(img):
             min_zeros = num_zeros
 
     return value
+
 
 def decode_image(img):
     decoded = img[0]

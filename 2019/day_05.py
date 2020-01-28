@@ -278,7 +278,6 @@ def test_intcode_computer():
     assert IntcodeComputer([104, 1125899906842624, 99]).parse_and_get_first_value() == 1125899906842624
 
 
-
 if __name__ == "__main__":
     test_intcode_computer()
 
