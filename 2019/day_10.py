@@ -154,9 +154,7 @@ class AsteroidField:
         cmp_fn = self.sort_for_vaporizer((station_x, station_y))
 
         while num_asteroids_currently_visible > 0:
-            #print(visible_asteroids)
             for asteroid_loc in sorted(visible_asteroids, key=cmp_fn, reverse=True):
-                #print(index, asteroid_loc)
                 self.vaporize_one_asteroid(*asteroid_loc)
                 
                 if nth_to_be_vaporized is not None and nth_to_be_vaporized == index:
