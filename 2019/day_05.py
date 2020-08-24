@@ -12,8 +12,7 @@ import attr
 class IntcodeComputer:
     program = attr.ib(factory=list)
 
-    replace_stdin = attr.ib(factory=list)
-    replace_stdout = attr.ib(default=False)
+    input_values = attr.ib(factory=list)
 
     index = attr.ib(init=False, default=0)
     relative_base = attr.ib(init=False, default=0)
@@ -33,7 +32,7 @@ class IntcodeComputer:
         self.index = 0
         self.relative_base = 0
         self.alive = True
-        self.replace_stdin = list()
+        self.input_values = list()
 
     @classmethod
     def init_from_file_generator(cls, filename, **kwargs):
@@ -84,27 +83,31 @@ class IntcodeComputer:
     def _get_params_with_modes(self, instruction_len, param_modes):
         return list(zip(self._get_params(instruction_len), param_modes))
 
-    def _parse_instruction_opcode1(self, param_modes=list):
+    def _parse_instruction_opcode1(self, param_modes):
         instruction_len = 4
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
-        self._set_value(self._get_value_write(*pms[2]), self._get_value(*pms[0]) + self._get_value(*pms[1]))
+        self._set_value(
+            self._get_value_write(*pms[2]), self._get_value(*pms[0]) + self._get_value(*pms[1]),
+        )
         self.index += instruction_len
 
-    def _parse_instruction_opcode2(self, param_modes=list):
+    def _parse_instruction_opcode2(self, param_modes):
         instruction_len = 4
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
-        self._set_value(self._get_value_write(*pms[2]), self._get_value(*pms[0]) * self._get_value(*pms[1]))
+        self._set_value(
+            self._get_value_write(*pms[2]), self._get_value(*pms[0]) * self._get_value(*pms[1]),
+        )
         self.index += instruction_len
 
-    def _parse_instruction_opcode3(self, param_modes=list):
+    def _parse_instruction_opcode3(self, param_modes):
         instruction_len = 2
         pms = self._get_params_with_modes(instruction_len, param_modes)
         ps = self._get_params(instruction_len)
 
-        if self.replace_stdin:
-            value = self.replace_stdin.pop(0)
+        if self.input_values:
+            value = self.input_values.pop(0)
         else:
             value = int(input("--> "))
 
@@ -115,19 +118,16 @@ class IntcodeComputer:
 
         self.index += instruction_len
 
-    def _parse_instruction_opcode4(self, param_modes=list):
+    def _parse_instruction_opcode4(self, param_modes):
         instruction_len = 2
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
         value = self._get_value(*pms[0])
         self.index += instruction_len
 
-        if self.replace_stdout:
-            return value
+        return value
 
-        print(value)
-
-    def _parse_instruction_opcode5(self, param_modes=list):
+    def _parse_instruction_opcode5(self, param_modes):
         instruction_len = 3
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
@@ -136,7 +136,7 @@ class IntcodeComputer:
         else:
             self.index += instruction_len
 
-    def _parse_instruction_opcode6(self, param_modes=list):
+    def _parse_instruction_opcode6(self, param_modes):
         instruction_len = 3
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
@@ -145,7 +145,7 @@ class IntcodeComputer:
         else:
             self.index += instruction_len
 
-    def _parse_instruction_opcode7(self, param_modes=list):
+    def _parse_instruction_opcode7(self, param_modes):
         instruction_len = 4
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
@@ -156,7 +156,7 @@ class IntcodeComputer:
 
         self.index += instruction_len
 
-    def _parse_instruction_opcode8(self, param_modes=list):
+    def _parse_instruction_opcode8(self, param_modes):
         instruction_len = 4
         pms = self._get_params_with_modes(instruction_len, param_modes)
 
@@ -167,7 +167,7 @@ class IntcodeComputer:
 
         self.index += instruction_len
 
-    def _parse_instruction_opcode9(self, param_modes=list):
+    def _parse_instruction_opcode9(self, param_modes):
         instruction_len = 2
         pms = self._get_params_with_modes(instruction_len, param_modes)
         self.relative_base += self._get_value(*pms[0])
@@ -191,9 +191,7 @@ class IntcodeComputer:
         elif opcode == 3:
             self._parse_instruction_opcode3(param_modes)
         elif opcode == 4:
-            val = self._parse_instruction_opcode4(param_modes)
-            if self.replace_stdout:
-                return val
+            return self._parse_instruction_opcode4(param_modes)
         elif opcode == 5:
             self._parse_instruction_opcode5(param_modes)
         elif opcode == 6:
@@ -217,7 +215,7 @@ class IntcodeComputer:
 
         while self.alive:
             val = self._parse_instruction()
-            if val is not None and self.replace_stdout:
+            if val is not None:
                 yield val
 
                 if stop_on_yield:
@@ -229,19 +227,19 @@ class IntcodeComputer:
 
         return self.program[index]
 
-    def parse_and_get_first_value(self):
-        self.replace_stdout = True
+    def parse_and_get_next_value(self):
         for val in self.parse(stop_on_yield=True):
             return val
 
     def parse_and_get_last_value(self):
-        self.replace_stdout = True
-
         last_val = None
         for val in self.parse():
             last_val = val
 
         return last_val
+
+    def pass_in(self, value):
+        self.input_values.append(value)
 
     def run(self):
         for _ in self.parse():
@@ -259,23 +257,23 @@ def test_intcode_computer():
 
     # "stdout" test cases
     test_program = [3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]
-    assert IntcodeComputer(test_program, replace_stdin=[8]).parse_and_get_first_value() == 1
-    assert IntcodeComputer(test_program, replace_stdin=[7]).parse_and_get_first_value() == 0
+    assert IntcodeComputer(test_program, input_values=[8]).parse_and_get_next_value() == 1
+    assert IntcodeComputer(test_program, input_values=[7]).parse_and_get_next_value() == 0
 
     test_program = [3, 3, 1108, -1, 8, 3, 4, 3, 99]
-    assert IntcodeComputer(test_program, replace_stdin=[8]).parse_and_get_first_value() == 1
-    assert IntcodeComputer(test_program, replace_stdin=[7]).parse_and_get_first_value() == 0
+    assert IntcodeComputer(test_program, input_values=[8]).parse_and_get_next_value() == 1
+    assert IntcodeComputer(test_program, input_values=[7]).parse_and_get_next_value() == 0
 
     test_program = [3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]
-    assert IntcodeComputer(test_program, replace_stdin=[0]).parse_and_get_first_value() == 0
-    assert IntcodeComputer(test_program, replace_stdin=[8]).parse_and_get_first_value() == 1
+    assert IntcodeComputer(test_program, input_values=[0]).parse_and_get_next_value() == 0
+    assert IntcodeComputer(test_program, input_values=[8]).parse_and_get_next_value() == 1
 
     test_program = [3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
-    assert IntcodeComputer(test_program, replace_stdin=[0]).parse_and_get_first_value() == 0
-    assert IntcodeComputer(test_program, replace_stdin=[8]).parse_and_get_first_value() == 1
+    assert IntcodeComputer(test_program, input_values=[0]).parse_and_get_next_value() == 0
+    assert IntcodeComputer(test_program, input_values=[8]).parse_and_get_next_value() == 1
 
-    assert len(str(IntcodeComputer([1102, 34915192, 34915192, 7, 4, 7, 99, 0]).parse_and_get_first_value())) == 16
-    assert IntcodeComputer([104, 1125899906842624, 99]).parse_and_get_first_value() == 1125899906842624
+    assert len(str(IntcodeComputer([1102, 34915192, 34915192, 7, 4, 7, 99, 0]).parse_and_get_next_value())) == 16
+    assert IntcodeComputer([104, 1125899906842624, 99]).parse_and_get_next_value() == 1125899906842624
 
 
 if __name__ == "__main__":

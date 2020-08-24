@@ -34,7 +34,7 @@ class AmpSequence:
         while all([amp.alive for amp in self.amps]):
             for amp in self.amps:
                 amp.replace_stdin.append(val)
-                val = amp.parse_and_get_first_value()
+                val = amp.parse_and_get_next_value()
 
             if val is not None:
                 last_value = val

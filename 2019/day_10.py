@@ -135,7 +135,10 @@ class AsteroidField:
 
     def sort_for_vaporizer(self, station_loc):
         def sort_for_vaporizer_station_at_origin(asteroid_loc_raw):
-            asteroid_loc_x, asteroid_loc_y = (asteroid_loc_raw[0] - station_loc[0], station_loc[1] - asteroid_loc_raw[1])
+            asteroid_loc_x, asteroid_loc_y = (
+                asteroid_loc_raw[0] - station_loc[0],
+                station_loc[1] - asteroid_loc_raw[1],
+            )
 
             # get arctan
             val = math.atan2(asteroid_loc_y, asteroid_loc_x)
@@ -150,7 +153,7 @@ class AsteroidField:
         return sort_for_vaporizer_station_at_origin
 
     def vaporize(self, nth_to_be_vaporized=None):
-        station_x, station_y, num_asteroids_currently_visible = self.best_station_location()
+        (station_x, station_y, num_asteroids_currently_visible) = self.best_station_location()
         visible_asteroids = self.visible_asteroids_from_location(station_x, station_y)
 
         index = 1
@@ -203,17 +206,17 @@ class AsteroidField:
         asteroid_map = ".#..##.###...#######\n##.############..##.\n.#.######.########.#\n.###.#######.####.#.\n#####.##.#.##.###.##\n..#####..#.#########\n####################\n#.####....###.#.#.##\n##.#################\n#####.##.###..####..\n..######..##.#######\n####.##.####...##..#\n.#####..#.######.###\n##...#.##########...\n#.##########.#######\n.####.#.###.###.#.##\n....##.##.###..#####\n.#.#.###########.###\n#.#.#.#####.####.###\n###.##.####.##.#..##"
         assert cls.init_from_str(asteroid_map).best_station_location() == (11, 13, 210)
 
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=1) == (11, 12)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=2) == (12, 1)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=3) == (12, 2)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=10) == (12, 8)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=20) == (16, 0)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=50) == (16, 9)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=100) == (10, 16)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=199) == (9, 6)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=200) == (8, 2)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=201) == (10, 9)
-        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=299) == (11, 1)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=1) == (11, 12,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=2) == (12, 1,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=3) == (12, 2,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=10) == (12, 8,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=20) == (16, 0,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=50) == (16, 9,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=100) == (10, 16,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=199) == (9, 6,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=200) == (8, 2,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=201) == (10, 9,)
+        assert cls.init_from_str(asteroid_map).vaporize(nth_to_be_vaporized=299) == (11, 1,)
 
 
 AsteroidField.unit_test()
