@@ -10,18 +10,24 @@ from math import gcd
 
 import attr
 
-Vector = namedtuple('Vector', 'x y z')
+Vector = namedtuple("Vector", "x y z")
+
 
 def add_vectors(v1, v2):
     return Vector(*[x1 + x2 for x1, x2 in zip(v1, v2)])
+
+
 def mult_vector(s, v):
     return Vector(*[s * x for x in v])
+
 
 def sub_vectors(v1, v2):
     return add_vectors(v1, mult_vector(-1, v2))
 
+
 def norm_delta(v1, v2):
     return Vector(*[int((y - x) / abs(y - x)) if x != y else 0 for x, y in zip(v1, v2)])
+
 
 def lcm(nums):
     tmp = nums[0]
@@ -46,6 +52,7 @@ class Moon:
 
     def to_str(self):
         return f"pos={self.position}, vel={self.velocity}"
+
 
 @attr.s(slots=True)
 class System:
@@ -120,7 +127,6 @@ class System:
 
         return None
 
-
     def show(self):
         print(f"After {self.num_steps} steps:")
         for moon in self.moons:
@@ -130,7 +136,6 @@ class System:
 
     def total_energy(self):
         return sum([moon.total_energy() for moon in self.moons])
-
 
     @classmethod
     def init_from_str(cls, moon_str):
@@ -187,5 +192,3 @@ print(SYSTEM.total_energy())
 
 SYSTEM = System.init_from_file("data/12.txt")
 print(SYSTEM.step_and_check_for_cycles())
-
-
