@@ -4,6 +4,7 @@ day 12: n-body problem
 
 from collections import defaultdict, namedtuple
 from copy import deepcopy
+from functools import reduce
 from itertools import combinations
 from math import gcd
 
@@ -29,11 +30,12 @@ def norm_delta(v1, v2):
     return Vector(*[int((y - x) / abs(y - x)) if x != y else 0 for x, y in zip(v1, v2)])
 
 
+# get least common multiplier from list of integers
 def lcm(nums):
-    tmp = nums[0]
-    for num in nums[1:]:
-        tmp = int((tmp * num) / gcd(tmp, num))
-    return tmp
+    def _lcm(num1, num2):
+        return int((num1 * num2) / gcd(num1, num2))
+
+    return reduce(_lcm, nums)
 
 
 @attr.s(slots=True)
