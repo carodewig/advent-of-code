@@ -6,7 +6,7 @@ import attr
 
 from collections import defaultdict
 from enum import Enum
-from math import ceil
+from math import ceil, floor
 
 
 @attr.s
@@ -92,6 +92,30 @@ class Nanofactory:
         self.leftovers.clear()
         return self._ore_for(amount, element)
 
+    def fuel_from_ore(self, amount):
+        # first figure out the max ore required for 1 fuel
+        ore_for_one_fuel = self.ore_for(1, "FUEL")
+        total_fuel = 1
+        amount -= ore_for_one_fuel
+
+        # now ballpark how many more fuels you could make and make them
+        while amount > ore_for_one_fuel:
+            min_addtl_fuel = int(floor(amount / ore_for_one_fuel))
+            ore = self._ore_for(min_addtl_fuel, "FUEL")
+            amount -= ore
+            total_fuel += min_addtl_fuel
+
+        # but there may be enough leftover to make fuel for cheap, try that
+        while amount >= 0:
+            ore = self._ore_for(1, "FUEL")
+            amount -= ore
+            if amount < 0:
+                break
+            total_fuel += 1
+
+        # ore exhausted return total
+        return total_fuel
+
     @classmethod
     def init_from_list(cls, reactions_list):
         reactions = []
@@ -108,13 +132,17 @@ class Nanofactory:
             # use readlines since files will be small
             return cls.init_from_list(f.readlines())
 
+
 assert 31 == Nanofactory.init_from_file("data/14_tests/1.txt").ore_for(1, "FUEL")
 assert 165 == Nanofactory.init_from_file("data/14_tests/2.txt").ore_for(1, "FUEL")
 assert 13312 == Nanofactory.init_from_file("data/14_tests/3.txt").ore_for(1, "FUEL")
 assert 180697 == Nanofactory.init_from_file("data/14_tests/4.txt").ore_for(1, "FUEL")
 assert 2210736 == Nanofactory.init_from_file("data/14_tests/5.txt").ore_for(1, "FUEL")
 
-print(Nanofactory.init_from_file("data/14.txt").ore_for(1, "FUEL"))
+assert 82892753 == Nanofactory.init_from_file("data/14_tests/3.txt").fuel_from_ore(10 ** 12)
+assert 5586022 == Nanofactory.init_from_file("data/14_tests/4.txt").fuel_from_ore(10 ** 12)
+assert 460664 == Nanofactory.init_from_file("data/14_tests/5.txt").fuel_from_ore(10 ** 12)
 
-
-
+NANOFACTORY = Nanofactory.init_from_file("data/14.txt")
+print(NANOFACTORY.ore_for(1, "FUEL"))
+print(NANOFACTORY.fuel_from_ore(10 ** 12))
