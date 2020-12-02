@@ -2,4 +2,4 @@
 
 Just a fun way to solve little programming problems on the weekend
 
-**Progress so far:** complete through day 10 (20 stars)
+**Progress so far:** complete through day 14 (28 stars)
