@@ -1,3 +1,4 @@
+""" day 1: report repair """
 
 from math import floor
 
@@ -48,9 +49,10 @@ def load_entries_from_text(filename):
 
     return entries
 
+TEST_SET = [1721, 979, 366, 299, 675, 1456]
+assert two_entries_that_sum_to(2020, TEST_SET) == 514579
+assert three_entries_that_sum_to(2020, TEST_SET) == 241861950
 
-assert two_entries_that_sum_to(2020, [1721, 979, 366, 299, 675, 1456]) == 514579
-assert two_entries_that_sum_to(2020, load_entries_from_text("data/01.txt")) == 866436
-
-assert three_entries_that_sum_to(2020, [1721, 979, 366, 299, 675, 1456]) == 241861950
-assert three_entries_that_sum_to(2020, load_entries_from_text("data/01.txt")) == 276650720
+REAL_SET = load_entries_from_text("data/01.txt")
+assert two_entries_that_sum_to(2020, REAL_SET) == 866436
+assert three_entries_that_sum_to(2020, REAL_SET) == 276650720

@@ -1,3 +1,4 @@
+""" day 2: password philosophy aka toboggan login """
 
 import re
 
@@ -39,12 +40,13 @@ def count_valid_passwords(fn, lines):
     return count
 
 
-test_set = ["1-3 a: abcde", "1-3 b: cdefg", "2-9 c: ccccccccc"]
+TEST_SET = ["1-3 a: abcde", "1-3 b: cdefg", "2-9 c: ccccccccc"]
+assert count_valid_passwords(valid_password_part1, TEST_SET) == 2
+assert count_valid_passwords(valid_password_part2, TEST_SET) == 1
 
-assert count_valid_passwords(valid_password_part1, test_set) == 2
+REAL_SET = []
 with open("data/02.txt") as fh:
-    assert count_valid_passwords(valid_password_part1, fh.readlines()) == 582
+    REAL_SET = fh.readlines()
 
-assert count_valid_passwords(valid_password_part2, test_set) == 1
-with open("data/02.txt") as fh:
-    assert count_valid_passwords(valid_password_part2, fh.readlines()) == 729
+assert count_valid_passwords(valid_password_part1, REAL_SET) == 582
+assert count_valid_passwords(valid_password_part2, REAL_SET) == 729
