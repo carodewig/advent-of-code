@@ -2,57 +2,48 @@
 
 import re
 
-def validate_field(field_name, value):
-    if field_name == "byr":
+def number_between(min_value, max_value):
+    def run_for(value):
         try:
-            return 1920 <= int(value) <= 2002
+            return min_value <= int(value) <= max_value
         except ValueError:
             return False
 
-    if field_name == "iyr":
-        try:
-            return 2010 <= int(value) <= 2020
-        except ValueError:
-            return False
+    return run_for
 
-    if field_name == "eyr":
-        try:
-            return 2020 <= int(value) <= 2030
-        except ValueError:
-            return False
+def validate_height(value):
+    if len(value) < 4:
+        return False
 
-    if field_name == "hgt":
-        if len(value) < 4:
-            return False
-
-        unit = value[-2:]
-        try:
-            if unit == "in":
-                return 59 <= int(value[:-2]) <= 76
-            if unit == "cm":
-                return 150 <= int(value[:-2]) <= 193
-            return False
-        except ValueError:
-            return False
-
-    if field_name == "hcl":
-        match = re.match("^#[0-9a-f]{6}$", value)
-        return bool(match)
-
-    if field_name == "ecl":
-        return value in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
-
-    if field_name == "pid":
-        match = re.match("^[0-9]{9}$", value)
-        return bool(match)
-
-    if field_name == "cid":
-        return True
+    unit = value[-2:]
+    if unit == "in":
+        return number_between(59, 76)(value[:-2])
+    if unit == "cm":
+        return number_between(150, 193)(value[:-2])
 
     return False
 
+def matches_regex(regex):
+    def run_for(value):
+        return bool(re.match(regex, value))
 
-def validate_passport_part1(passport_lst):
+    return run_for
+
+def validate_ecl(value):
+    return value in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
+
+
+FIELD_VALIDATORS = {
+    "byr": number_between(1920, 2002),
+    "iyr": number_between(2010, 2020),
+    "eyr": number_between(2020, 2030),
+    "hgt": validate_height,
+    "hcl": matches_regex("^#[0-9a-f]{6}$"),
+    "ecl": validate_ecl,
+    "pid": matches_regex("^[0-9]{9}$"),
+}
+
+def check_field_existence(passport_lst):
     mandatory_fields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
     fields_in_passport = [x.split(":")[0] for x in passport_lst]
 
@@ -63,12 +54,12 @@ def validate_passport_part1(passport_lst):
     return True
 
 
-def validate_passport_part2(passport_lst):
-    if not validate_passport_part1(passport_lst):
+def validate_password(passport_lst):
+    if not check_field_existence(passport_lst):
         return False
 
-    for field in passport_lst:
-        if not validate_field(*field.split(":")):
+    for (field, value) in [x.split(":") for x in passport_lst]:
+        if not FIELD_VALIDATORS.get(field, lambda x: True)(value):
             return False
 
     return True
@@ -106,8 +97,8 @@ REAL_DATA = ""
 with open("data/04.txt") as fh:
     REAL_DATA = fh.read()
 
-assert sum(parse_passports(TEST_DATA, validate_passport_part1)) == 2
-assert sum(parse_passports(REAL_DATA, validate_passport_part1)) == 222
+assert sum(parse_passports(TEST_DATA, check_field_existence)) == 2
+assert sum(parse_passports(REAL_DATA, check_field_existence)) == 222
 
 
 TEST_DATA_INVALID = """
@@ -141,22 +132,9 @@ eyr:2022
 iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
 """
 
-assert validate_field("byr", "2002")
-assert not validate_field("byr", "2003")
-assert validate_field("hgt", "60in")
-assert validate_field("hgt", "190cm")
-assert not validate_field("hgt", "190in")
-assert not validate_field("hgt", "190")
-assert validate_field("hcl", "#123abc")
-assert not validate_field("hcl", "#123abz")
-assert not validate_field("hcl", "123abc")
-assert validate_field("ecl", "brn")
-assert not validate_field("ecl", "wat")
-assert validate_field("pid", "000000001")
-assert not validate_field("pid", "0123456789")
 
-assert sum(parse_passports(TEST_DATA_INVALID, validate_passport_part2)) == 0
-assert sum(parse_passports(TEST_DATA_VALID, validate_passport_part2)) == 4
+assert sum(parse_passports(TEST_DATA_INVALID, validate_password)) == 0
+assert sum(parse_passports(TEST_DATA_VALID, validate_password)) == 4
 
-assert sum(parse_passports(REAL_DATA, validate_passport_part2)) == 140
+assert sum(parse_passports(REAL_DATA, validate_password)) == 140
 
