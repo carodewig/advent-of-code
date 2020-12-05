@@ -1,4 +1,3 @@
-
 import re
 from collections import namedtuple
 
@@ -14,6 +13,7 @@ OPS = {
     "NOT": lambda x: ~int(x),
     "": int,
 }
+
 
 @attr.s
 class Circuit:
@@ -32,7 +32,7 @@ class Circuit:
             pattern = r"^([a-z0-9]+) ([A-Z]+) ([a-z0-9]+) -> ([a-z]+)$"
             if match := re.match(pattern, instruction):
                 input1, operation, input2, output = match.groups()
-                instructions.append(Instruction(operation, (wire_or_value(input1), wire_or_value(input2)), output))
+                instructions.append(Instruction(operation, (wire_or_value(input1), wire_or_value(input2)), output,))
                 continue
 
             pattern = r"^NOT ([a-z]+) -> ([a-z]+)$"
@@ -97,7 +97,6 @@ NOT y -> i
 TEST_CIRCUIT = Circuit(TEST_INSTRUCTIONS)
 TEST_CIRCUIT.run()
 assert TEST_CIRCUIT.wires["i"] == 65079
-
 
 
 with open("data/07.txt") as fh:

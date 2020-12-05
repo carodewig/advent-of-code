@@ -13,6 +13,7 @@ def parse_line(line):
 
     return match.groups()
 
+
 def valid_password_part1(min_app, max_app, char, password):
     appearances = 0
     for letter in password:
@@ -20,6 +21,7 @@ def valid_password_part1(min_app, max_app, char, password):
             appearances += 1
 
     return int(min_app) <= appearances <= int(max_app)
+
 
 def valid_password_part2(pos1, pos2, char, password):
     char1 = password[int(pos1) - 1]

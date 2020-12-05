@@ -34,7 +34,7 @@ def three_entries_that_sum_to(goal, entries):
 
     for index in range(len(entries)):
         value = entries_sorted[index]
-        if partial_result := two_entries_that_sum_to(goal - value, entries_sorted[index + 1:]):
+        if partial_result := two_entries_that_sum_to(goal - value, entries_sorted[index + 1 :]):
             return partial_result * value
 
     return None
@@ -48,6 +48,7 @@ def load_entries_from_text(filename):
             entries.append(int(line.strip()))
 
     return entries
+
 
 TEST_SET = [1721, 979, 366, 299, 675, 1456]
 assert two_entries_that_sum_to(2020, TEST_SET) == 514579

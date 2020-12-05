@@ -1,10 +1,13 @@
 """ day 2: I was told there would be no math """
 
+
 def wrapping_paper(l, w, h):
-    return 2*l*w + 2*w*h + 2*h*l + min(l*w, l*h, w*h)
+    return 2 * l * w + 2 * w * h + 2 * h * l + min(l * w, l * h, w * h)
+
 
 def ribbon(l, w, h):
-    return 2 * min(l+w, w+h, h+l) + l*w*h
+    return 2 * min(l + w, w + h, h + l) + l * w * h
+
 
 def parse_present_dimensions(present_str):
     return [int(x) for x in present_str.split("x")]

@@ -14,14 +14,17 @@ SANDWICH_LETTERS = re.compile(r"(.).\1")
 def matches(pattern, string):
     return bool(re.search(pattern, string))
 
+
 def is_nice_v1(string):
     def enough_vowels(string):
         return len(re.findall(VOWELS, string)) >= 3
 
     return enough_vowels(string) and matches(DOUBLE_LETTER, string) and not matches(DISALLOWED_STRINGS, string)
 
+
 def is_nice_v2(string):
     return matches(DOUBLE_PAIR, string) and matches(SANDWICH_LETTERS, string)
+
 
 assert is_nice_v1("ugknbfddgicrmopn")
 assert is_nice_v1("aaa")
@@ -40,7 +43,3 @@ with open("data/05.txt") as fh:
 
 print(sum([int(is_nice_v1(string.strip())) for string in STRINGS]))
 print(sum([int(is_nice_v2(string.strip())) for string in STRINGS]))
-
-
-
-

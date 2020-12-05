@@ -6,6 +6,7 @@ import attr
 
 Location = namedtuple("Location", ["x", "y"])
 
+
 class State(Enum):
     TREE = "#"
     OPEN = "."

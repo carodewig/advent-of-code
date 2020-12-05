@@ -1,5 +1,6 @@
 """ day 1: not quite lisp """
 
+
 def parse_instructions(instructions):
     floor = 0
     for instruction in instructions:
@@ -10,13 +11,16 @@ def parse_instructions(instructions):
 
         yield floor
 
+
 def entered_basement(instructions):
     for position, floor in enumerate(parse_instructions(instructions), start=1):
         if floor == -1:
             return position
 
+
 def last_floor(instructions):
     return list(parse_instructions(instructions))[-1]
+
 
 assert last_floor("(())") == 0
 assert last_floor("()()") == 0

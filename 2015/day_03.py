@@ -21,8 +21,10 @@ def deliver_presents(directions):
 
         yield location
 
+
 def unique_houses(directions):
     return len(set(list(deliver_presents(directions))))
+
 
 def unique_houses_two_santas(directions):
     return len(set(list(deliver_presents(directions[::2])) + list(deliver_presents(directions[1::2]))))

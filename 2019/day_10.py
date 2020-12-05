@@ -153,7 +153,7 @@ class AsteroidField:
         return sort_for_vaporizer_station_at_origin
 
     def vaporize(self, nth_to_be_vaporized=None):
-        (station_x, station_y, num_asteroids_currently_visible) = self.best_station_location()
+        (station_x, station_y, num_asteroids_currently_visible,) = self.best_station_location()
         visible_asteroids = self.visible_asteroids_from_location(station_x, station_y)
 
         index = 1

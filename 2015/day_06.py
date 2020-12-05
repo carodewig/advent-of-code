@@ -50,6 +50,7 @@ class LightDisplay:
 
         return display
 
+
 DISPLAY = LightDisplay()
 with open("data/06.txt") as fh:
     for line in fh:

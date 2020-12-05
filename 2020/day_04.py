@@ -2,6 +2,7 @@
 
 import re
 
+
 def number_between(min_value, max_value):
     def run_for(value):
         try:
@@ -10,6 +11,7 @@ def number_between(min_value, max_value):
             return False
 
     return run_for
+
 
 def validate_height(value):
     if len(value) < 4:
@@ -23,11 +25,13 @@ def validate_height(value):
 
     return False
 
+
 def matches_regex(regex):
     def run_for(value):
         return bool(re.match(regex, value))
 
     return run_for
+
 
 def validate_ecl(value):
     return value in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
@@ -42,6 +46,7 @@ FIELD_VALIDATORS = {
     "ecl": validate_ecl,
     "pid": matches_regex("^[0-9]{9}$"),
 }
+
 
 def check_field_existence(passport_lst):
     mandatory_fields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
@@ -137,4 +142,3 @@ assert sum(parse_passports(TEST_DATA_INVALID, validate_password)) == 0
 assert sum(parse_passports(TEST_DATA_VALID, validate_password)) == 4
 
 assert sum(parse_passports(REAL_DATA, validate_password)) == 140
-
