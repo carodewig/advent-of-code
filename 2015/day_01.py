@@ -1,6 +1,5 @@
 """ day 1: not quite lisp """
 
-
 def parse_instructions(instructions):
     floor = 0
     for instruction in instructions:
