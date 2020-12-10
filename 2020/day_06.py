@@ -1,3 +1,6 @@
+""" day 6 """
+
+
 def parse_any_member(answers):
     total_yeses = 0
     group = []
