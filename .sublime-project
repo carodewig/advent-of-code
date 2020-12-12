@@ -1,0 +1,5 @@
+{
+	"settings": {
+		"SublimeLinter.linters.python.rcfile": ."pylintrc"
+	}
+}
