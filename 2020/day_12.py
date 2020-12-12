@@ -7,17 +7,23 @@ Location = namedtuple("Location", ["x", "y"])
 
 def north(loc, dist):
     return Location(loc.x, loc.y + dist)
+
+
 def east(loc, dist):
     return Location(loc.x + dist, loc.y)
+
+
 def west(loc, dist):
     return Location(loc.x - dist, loc.y)
+
+
 def south(loc, dist):
     return Location(loc.x, loc.y - dist)
 
 
 def run_part1(directions_str):
     ship = Location(0, 0)
-    ship_dir = 90 # 0-90-180-270 N-E-S-W
+    ship_dir = 90  # 0-90-180-270 N-E-S-W
 
     for direction in directions_str.split("\n"):
         if not direction:
@@ -96,6 +102,7 @@ def run_part2(directions_str):
             raise Exception(action)
 
     return abs(ship.x) + abs(ship.y)
+
 
 TEST_DIRECTIONS = """
 F10
