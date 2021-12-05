@@ -32,7 +32,7 @@ class Circuit:
             pattern = r"^([a-z0-9]+) ([A-Z]+) ([a-z0-9]+) -> ([a-z]+)$"
             if match := re.match(pattern, instruction):
                 input1, operation, input2, output = match.groups()
-                instructions.append(Instruction(operation, (wire_or_value(input1), wire_or_value(input2)), output,))
+                instructions.append(Instruction(operation, (wire_or_value(input1), wire_or_value(input2)), output))
                 continue
 
             pattern = r"^NOT ([a-z]+) -> ([a-z]+)$"
