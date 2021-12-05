@@ -133,6 +133,6 @@ TEST_GAME = BingoGame.init_from_str(TEST_STR)
 assert TEST_GAME.get_first_winner() == 4512
 assert TEST_GAME.get_last_winner() == 1924
 with open("data/day_04.txt") as f:
-    GAME = BingoGame.init_from_str((f.read()))
+    GAME = BingoGame.init_from_str(f.read())
     print(GAME.get_first_winner())
     print(GAME.get_last_winner())

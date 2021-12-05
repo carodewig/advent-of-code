@@ -7,7 +7,7 @@ import attr
 class Rule(ABC):
     @abstractmethod
     def possible_matches(self, example):
-        """ possible match if the beginning of the string matches the rule """
+        """possible match if the beginning of the string matches the rule"""
 
     def exact_matches(self, example):
         for match in self.possible_matches(example):
@@ -131,7 +131,8 @@ def get_top_level_rule(rule_strs):
         if "|" in rule_str:
             rules_split = [x.strip() for x in rule_str.split("|")]
             return OrRule(
-                parse_str_to_rule(rules_split[0], index), parse_str_to_rule(rules_split[1], index),
+                parse_str_to_rule(rules_split[0], index),
+                parse_str_to_rule(rules_split[1], index),
             )
 
         if len(rule_indices) == 1:
