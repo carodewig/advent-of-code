@@ -1,6 +1,5 @@
 """ day 19: medicine for rudolph """
 
-import queue
 from copy import copy
 import re
 from collections import defaultdict
