@@ -30,11 +30,11 @@ impl Room {
     fn is_real(&self) -> bool {
         let mut letter_freq_map: HashMap<char, i32> = HashMap::new();
         for letter in self.letters.iter().filter(|&c| c != &'-') {
-            *letter_freq_map.entry(letter.clone()).or_insert(0) += 1;
+            *letter_freq_map.entry(*letter).or_insert(0) += 1;
         }
 
         let mut letter_freq: Vec<(char, i32)> = letter_freq_map.drain().collect();
-        letter_freq.sort_by_key(|(letter_a, freq_a)| (-1 * freq_a, letter_a.clone()));
+        letter_freq.sort_by_key(|(letter_a, freq_a)| (-1 * freq_a, *letter_a));
 
         let checksum = &letter_freq[..5].iter().map(|(l, _)| l).collect::<String>();
         checksum == &self.checksum
@@ -49,7 +49,7 @@ impl Room {
             .take(26);
 
         let mut char_map: HashMap<char, char> =
-            HashMap::from_iter(alphabet.zip(translated_alphabet));
+            alphabet.zip(translated_alphabet).collect::<HashMap<_, _>>();
         char_map.insert('-', ' ');
 
         self.letters
@@ -62,16 +62,16 @@ impl Room {
 fn main() {
     let total: u32 = read_file("04.txt")
         .split('\n')
-        .filter_map(|room_str| Room::parse(room_str))
-        .filter(|room| room.is_real())
+        .filter_map(Room::parse)
+        .filter(Room::is_real)
         .map(|room| room.sector_id)
         .sum();
     println!("{}", total);
 
     read_file("04.txt")
         .split('\n')
-        .filter_map(|room_str| Room::parse(room_str))
-        .filter(|room| room.is_real())
+        .filter_map(Room::parse)
+        .filter(Room::is_real)
         .map(|room| format!("{}: {}", room.decrypt_name(), room.sector_id))
         .filter(|s| s.contains("north"))
         .for_each(|s| println!("{}", s));

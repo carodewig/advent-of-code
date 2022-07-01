@@ -6,8 +6,8 @@ use std::collections::HashSet;
 #[derive(Eq, Hash, Clone, Debug, PartialEq)]
 struct Location(i32, i32);
 impl Location {
-    fn step(&self, direction: i32, num_steps: i32) -> Location {
-        let direction_rad = (direction as f32).to_radians();
+    fn step(&self, direction: i16, num_steps: i32) -> Location {
+        let direction_rad = f32::from(direction).to_radians();
         let (x_step, y_step) = (
             direction_rad.sin().round() as i32,
             direction_rad.cos().round() as i32,
@@ -24,7 +24,7 @@ impl Location {
 // this would've been nicer with generators in python but :shrug:
 fn follow_step_string<S: AsRef<str>>(step_string: S) -> Vec<Location> {
     let mut locations: Vec<Location> = Vec::from([Location(0, 0)]);
-    let mut direction: i32 = 0;
+    let mut direction: i16 = 0;
 
     for instruction in step_string.as_ref().split(", ") {
         let (direction_str, num_steps) = instruction.split_at(1);
