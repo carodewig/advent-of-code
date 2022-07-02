@@ -1,4 +1,5 @@
 // day 4: security through obscurity
+
 use advent_rs_2016::read_input::read_file;
 use regex::Regex;
 use std::collections::HashMap;

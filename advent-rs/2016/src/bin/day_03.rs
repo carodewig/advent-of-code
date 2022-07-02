@@ -1,4 +1,5 @@
 // day 3: squares with three sides
+
 use advent_rs_2016::read_input::read_file;
 
 fn triangle_is_possible(mut sides: Vec<u32>) -> bool {
