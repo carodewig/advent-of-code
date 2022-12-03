@@ -15,6 +15,8 @@ fn local_path(year: u16, day: u8) -> PathBuf {
 
 /// Download advent-of-code input file to a local path. Return that
 /// path if the download succeeded.
+/// TODO: error / return none if file contains 'please log in', which will
+///  occur if cookie is not correctly specified
 fn download_to_local(year: u16, day: u8) -> Option<PathBuf> {
     let output_file_path = local_path(year, day);
     let mut output_file = File::create(output_file_path.clone()).ok()?;
