@@ -2,15 +2,17 @@
 use common::read_input_as_string;
 use regex::{Match, Regex};
 
-fn fully_contains(min1: u32, max1: u32, min2: u32, max2: u32, recursed: bool) -> bool {
-    (min1 <= min2 && max1 >= max2) || (!recursed && fully_contains(min2, max2, min1, max1, true))
+fn fully_contains(min1: u32, max1: u32, min2: u32, max2: u32) -> bool {
+    let f = |min_a, min_b, max_a, max_b| min_a <= min_b && max_b <= max_a;
+    f(min1, min2, max1, max2) || f(min2, min1, max2, max1)
 }
 
-fn any_overlap(min1: u32, max1: u32, min2: u32, max2: u32, recursed: bool) -> bool {
-    (max1 >= min2 && min1 <= min2) || (!recursed && any_overlap(min2, max2, min1, max1, true))
+fn any_overlap(min1: u32, max1: u32, min2: u32, max2: u32) -> bool {
+    let f = |min_a, min_b, max_a| min_a <= min_b && min_b <= max_a;
+    f(min1, min2, max1) || f(min2, min1, max2)
 }
 
-fn overlapping_work(input: &str, overlap_fn: fn(u32, u32, u32, u32, bool) -> bool) -> usize {
+fn overlapping_work(input: &str, overlap_fn: fn(u32, u32, u32, u32) -> bool) -> usize {
     let re = Regex::new(r"(\d+)-(\d+),(\d+)-(\d+)").unwrap();
     let get_match = |m: Option<Match>| u32::from_str_radix(m.unwrap().as_str(), 10).unwrap();
 
@@ -24,7 +26,6 @@ fn overlapping_work(input: &str, overlap_fn: fn(u32, u32, u32, u32, bool) -> boo
                     get_match(caps.get(2)),
                     get_match(caps.get(3)),
                     get_match(caps.get(4)),
-                    false,
                 ))
             } else {
                 None
