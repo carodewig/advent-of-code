@@ -1,7 +1,4 @@
-use std::slice::Split;
-
 /// day 11: monkey in the middle
-use common::read_input_as_string;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 struct Monkey {
