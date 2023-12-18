@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
+itertools = "0"
 lazy_static = "1"
 regex = "1"
