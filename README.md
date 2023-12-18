@@ -11,5 +11,7 @@ Just a fun way to solve little programming problems on the weekend
 * 2023: complete through day 7 (14 stars)
 
 **Running code:**
+
 2015, 2019-2021: [Poetry](https://python-poetry.org) used to manage dependencies for (pyenv recommended as well).
+
 2016, 2023: Rust, Cargo used. Ex: `cd advent-rs/2016 && cargo run --bin day_01`
