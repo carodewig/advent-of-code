@@ -1,6 +1,7 @@
 __pycache__/
 .DS_Store
 target/
+.idea/
 
 advent-rs/common/src/fetch_input.rs
 
