@@ -8,11 +8,11 @@ Just a fun way to solve little programming problems on the weekend
 * 2019: complete through day 15 (30 stars)
 * 2020: complete through day 19 (39 stars)
 * 2021: complete through day 11 (22 stars)
-* 2023: complete through day 7 (14 stars)
-* 2024: complete through day 8 (16 stars)
+* 2023: complete through day 9 (18 stars)
+* 2024: complete through day 9 (18 stars)
 
 **Running code:**
 
-2015, 2019-2021: [Poetry](https://python-poetry.org) used to manage dependencies for (pyenv recommended as well).
+2015, 2019-2021: [Poetry](https://python-poetry.org) used to manage dependencies (pyenv recommended as well).
 
 2016, 2023, 2024: Rust, Cargo used. Ex: `cd advent-rs/2016 && cargo run --bin day_01`

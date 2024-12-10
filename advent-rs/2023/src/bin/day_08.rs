@@ -5,6 +5,12 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::str::FromStr;
 
+fn main() {
+    let map_str = read_input_as_string(2023, 8).unwrap();
+    println!("{}", count_steps(&map_str));
+    println!("{}", count_ghost_steps(&map_str));
+}
+
 #[derive(Debug, Copy, Clone, strum::EnumString, PartialEq, Eq)]
 enum Direction {
     #[strum(serialize = "L")]
@@ -15,8 +21,9 @@ enum Direction {
 
 type Directions = Vec<Direction>;
 type Node = String;
+type Map = HashMap<Node, (Node, Node)>;
 
-fn parse(map_text: &str) -> (Directions, HashMap<Node, (Node, Node)>) {
+fn parse(map_text: &str) -> (Directions, Map) {
     let lines: Vec<_> = map_text
         .split('\n')
         .map(|l| l.trim())
@@ -29,7 +36,7 @@ fn parse(map_text: &str) -> (Directions, HashMap<Node, (Node, Node)>) {
         .filter_map(|c| Direction::from_str(&c.to_string()).ok())
         .collect();
 
-    let direction_re = Regex::new(r"([A-Z]{3}) = \(([A-Z]{3}), ([A-Z]{3})\)").unwrap();
+    let direction_re = Regex::new(r"([A-Z0-9]{3}) = \(([A-Z0-9]{3}), ([A-Z0-9]{3})\)").unwrap();
     let mut map = HashMap::default();
     for line in &lines[1..] {
         if let Some(caps) = direction_re.captures(line) {
@@ -48,62 +55,113 @@ fn parse(map_text: &str) -> (Directions, HashMap<Node, (Node, Node)>) {
 
 fn count_steps(map_text: &str) -> usize {
     let (directions, map) = parse(map_text);
-    let mut steps = 0;
     let mut node = "AAA".to_string();
 
-    for &direction in directions.iter().cycle() {
-        if node.as_str() == "ZZZ" {
-            break;
+    for (step, &direction) in directions.iter().cycle().enumerate() {
+        if &node == "ZZZ" {
+            return step;
         }
 
-        steps += 1;
-        let (left, right) = map.get(&node).unwrap();
-        node = if direction == Direction::Left {
-            left.clone()
-        } else {
-            right.clone()
-        }
+        node = next_node(&map, direction, &node);
     }
 
-    steps
+    unreachable!()
+}
+
+fn next_node(map: &Map, direction: Direction, current_node: &Node) -> Node {
+    use Direction::Left;
+    let (left, right) = map.get(current_node).unwrap().clone();
+    if direction == Left {
+        left
+    } else {
+        right
+    }
+}
+
+fn find_cycle_length(map: &Map, directions: &Directions, start_node: &String) -> usize {
+    let mut possible_cycle_starts: Vec<String> = Vec::default();
+    let mut node = start_node.clone();
+
+    for (steps, (direction_index, &direction)) in directions.iter().enumerate().cycle().enumerate()
+    {
+        // see if we're at the right place
+        if direction_index == 0 && node.ends_with('Z') {
+            // check what the next node and direction will be
+            let next = next_node(map, direction, &node);
+            if possible_cycle_starts.contains(&next) {
+                return steps;
+            }
+        }
+
+        if direction_index == directions.len() - 1 {
+            possible_cycle_starts.push(node.clone());
+        }
+
+        // take a step
+        node = next_node(map, direction, &node);
+    }
+
+    unreachable!()
 }
 
 fn count_ghost_steps(map_text: &str) -> usize {
     let (directions, map) = parse(map_text);
-    let mut steps = 0;
-
-    // TODO: start from all elements ending in A, need to step until all elements end in Z
-    //  keep track of steps for each element, checking to see when they start to cycle (ending on **Z)...
-    //  hopefully cycle length is equal to integer multiple of length of directions? need to check this
-    //  once something is cycling we can remove it from element list - keep track of cycle start idx and number of steps in it
-    //  once we have cycles for everything we just need to figure out where they meet!
-    todo!();
-
-    steps
+    map.keys()
+        .filter(|key| key.ends_with('A'))
+        .map(|starting_location| find_cycle_length(&map, &directions, starting_location))
+        .fold(1, |acc, cycle_length| lcm(acc, cycle_length))
 }
 
-fn main() {
-    let map_str = read_input_as_string(2023, 8).unwrap();
-    println!("{}", count_steps(&map_str));
+fn lcm(n1: usize, n2: usize) -> usize {
+    let (mut x, mut y) = if n1 > n2 { (n1, n2) } else { (n2, n1) };
+
+    let mut rem = x % y;
+    while rem != 0 {
+        x = y;
+        y = rem;
+        rem = x % y;
+    }
+
+    n1 * n2 / y
 }
 
 #[cfg(test)]
 mod tests {
-    const SAMPLE1: &str = r#"RL
+    const SAMPLE1: &str = "\
+        RL
+        AAA = (BBB, CCC)
+        BBB = (DDD, EEE)
+        CCC = (ZZZ, GGG)
+        DDD = (DDD, DDD)
+        EEE = (EEE, EEE)
+        GGG = (GGG, GGG)
+        ZZZ = (ZZZ, ZZZ)";
 
-    AAA = (BBB, CCC)
-    BBB = (DDD, EEE)
-    CCC = (ZZZ, GGG)
-    DDD = (DDD, DDD)
-    EEE = (EEE, EEE)
-    GGG = (GGG, GGG)
-    ZZZ = (ZZZ, ZZZ)"#;
+    const SAMPLE2: &str = "\
+        LLR
+        AAA = (BBB, BBB)
+        BBB = (AAA, ZZZ)
+        ZZZ = (ZZZ, ZZZ)";
 
-    const SAMPLE2: &str = "LLR\n\nAAA = (BBB, BBB)\nBBB = (AAA, ZZZ)\nZZZ = (ZZZ, ZZZ)";
+    const SAMPLE3: &str = "\
+        LR
+        11A = (11B, XXX)
+        11B = (XXX, 11Z)
+        11Z = (11B, XXX)
+        22A = (22B, XXX)
+        22B = (22C, 22C)
+        22C = (22Z, 22Z)
+        22Z = (22B, 22B)
+        XXX = (XXX, XXX)";
 
     #[test]
-    fn test() {
+    fn test_part1() {
         assert_eq!(2, super::count_steps(SAMPLE1));
         assert_eq!(6, super::count_steps(SAMPLE2));
+    }
+
+    #[test]
+    fn test_part2() {
+        assert_eq!(super::count_ghost_steps(SAMPLE3), 6);
     }
 }
