@@ -1,5 +1,4 @@
 use curl::easy::Easy;
-use std::io::Read;
 use std::{env::temp_dir, fs::File, io::Write, path::PathBuf};
 
 const COOKIE: &str = "session=INSERT_SESSION_COOKIE_HERE";

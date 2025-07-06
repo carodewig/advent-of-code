@@ -9,7 +9,7 @@ Just a fun way to solve little programming problems on the weekend
 * 2020: complete through day 19 (39 stars)
 * 2021: complete through day 11 (22 stars)
 * 2023: complete through day 9 (18 stars)
-* 2024: complete through day 12 (24 stars)
+* 2024: complete through day 13 (26 stars)
 
 **Running code:**
 

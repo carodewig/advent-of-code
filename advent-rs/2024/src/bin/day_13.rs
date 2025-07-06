@@ -1,17 +1,17 @@
 // Claw Contraption
 
-use common::read_input_as_string;
+use common::Location;
+use common::{read_input_as_string, Step};
 use regex::Regex;
 use std::num::ParseIntError;
-use std::ops::Add;
 
 fn main() {
     let input = read_input_as_string(2024, 13).unwrap();
     println!("{}", part1(&input));
-    // println!("{}", part2(&input));
+    println!("{}", part2(&input));
 }
 
-fn part1(input: &str) -> usize {
+fn part1(input: &str) -> isize {
     let machines = parse(input);
     machines
         .into_iter()
@@ -22,15 +22,16 @@ fn part1(input: &str) -> usize {
         .sum()
 }
 
-fn part2(input: &str) -> usize {
+fn part2(input: &str) -> isize {
     let machines = parse(input);
+    let step_offset = Step {
+        x: 10000000000000,
+        y: 10000000000000,
+    };
     machines
         .into_iter()
         .map(|machine| ClawMachine {
-            prize: Location {
-                x: machine.prize.x + 10000000000000,
-                y: machine.prize.y + 10000000000000,
-            },
+            prize: machine.prize + step_offset,
             ..machine
         })
         .filter_map(|machine| {
@@ -48,38 +49,51 @@ struct ClawMachine {
 }
 
 impl ClawMachine {
-    fn cheapest_way_to_win(&self) -> Option<usize> {
-        // treat as a system of equations
-        // prize.x = a * button_a.x + b * button_b.x
-        // prize.y = a * button_a.y + b * button_b.y
-        // cost = 3 * a + b
-        //
-        // constraints
-        // 0 <= a <= min(prize.x / button_a.x, prize.y / button_a.y)
-        //   '' b ''
-        // should become a linear optimization problem, solving for a and b...
-        // probably need simplex
-        // but for now just hit it with a stick
-        let max_a_presses = (self.prize.x / self.button_a.x).min(self.prize.y / self.button_a.y);
+    fn max_presses(prize: Location, button: Step) -> isize {
+        (prize.x / button.x).min(prize.y / button.y)
+    }
 
-        let mut min_cost = usize::MAX;
-        for a_presses in 0..(max_a_presses + 1) {
-            println!("{a_presses} / {max_a_presses}");
-            // solve for b
-            if (self.prize.x - a_presses * self.button_a.x) % self.button_b.x == 0 {
-                let b_presses = (self.prize.x - a_presses * self.button_a.x) / self.button_b.x;
-                if self.prize.y == a_presses * self.button_a.y + b_presses * self.button_b.y {
-                    let cost = 3 * a_presses + b_presses;
-                    min_cost = min_cost.min(cost);
+    fn cheapest_way_to_win(&self) -> Option<isize> {
+        // take advantage of a key property of the input: one button will have x > y and the other
+        // will have x < y
+        let mut presses_b = Self::max_presses(self.prize, self.button_b);
+        while presses_b >= 0 {
+            println!("presses_b = {presses_b}");
+            let remainder = self.prize - self.button_b * presses_b;
+            let presses_a = Self::max_presses(remainder, self.button_a);
+            if self.button_a * presses_a + self.button_b * presses_b == self.prize {
+                return Some(3 * presses_a + presses_b);
+            }
+
+            if remainder.x > remainder.y {
+                let presses_needed_a = remainder.x / self.button_a.x;
+                let overload_y = remainder.y - self.button_a.y * presses_needed_a;
+
+                if overload_y < 0 {
+                    let presses_needed_b = Self::max_presses(
+                        self.prize - self.button_a * presses_needed_a,
+                        self.button_b,
+                    );
+                    presses_b = (presses_b - 1).min(presses_needed_b);
+                } else {
+                    presses_b -= (overload_y / self.button_b.y).max(1);
+                }
+            } else {
+                let presses_needed_a = remainder.y / self.button_a.y;
+                let overload_x = remainder.x - self.button_a.x * presses_needed_a;
+
+                if overload_x < 0 {
+                    let presses_needed_b = Self::max_presses(
+                        self.prize - self.button_a * presses_needed_a,
+                        self.button_b,
+                    );
+                    presses_b = (presses_b - 1).min(presses_needed_b);
+                } else {
+                    presses_b -= (overload_x / self.button_b.x).max(1);
                 }
             }
         }
-
-        if min_cost == usize::MAX {
-            None
-        } else {
-            Some(min_cost)
-        }
+        None
     }
 }
 
@@ -118,31 +132,10 @@ fn parse(input: &str) -> Vec<ClawMachine> {
     machines
 }
 
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
-struct Location {
-    x: usize,
-    y: usize,
-}
-
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
-struct Step {
-    x: usize,
-    y: usize,
-}
-
-impl Add<Step> for Location {
-    type Output = Location;
-
-    fn add(self, rhs: Step) -> Self::Output {
-        Location {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-        }
-    }
-}
 #[cfg(test)]
 mod tests {
-    use crate::{parse, part1, ClawMachine, Location, Step};
+    use crate::{parse, part1, part2, ClawMachine};
+    use common::{Location, Step};
 
     const SAMPLE: &str = "
         Button A: X+94, Y+34
@@ -177,5 +170,10 @@ mod tests {
     #[test]
     fn test_part1() {
         assert_eq!(part1(SAMPLE), 480);
+    }
+
+    #[test]
+    fn test_part2() {
+        assert_eq!(part2(SAMPLE), 875318608908);
     }
 }
