@@ -1,4 +1,5 @@
 use curl::easy::Easy;
+use std::io::Read;
 use std::{env::temp_dir, fs::File, io::Write, path::PathBuf};
 
 const COOKIE: &str = "session=INSERT_SESSION_COOKIE_HERE";
@@ -43,6 +44,13 @@ fn fetch_input_file_internal(year: u16, day: u8) -> (Option<PathBuf>, bool) {
     }
 }
 
+pub fn delete_input_file(year: u16, day: u8) {
+    let output_file_path = local_path(year, day);
+    if output_file_path.exists() {
+        let _ = std::fs::remove_file(&output_file_path);
+    }
+}
+
 #[must_use]
 pub fn fetch_input_file(year: u16, day: u8) -> Option<PathBuf> {
     fetch_input_file_internal(year, day).0
@@ -55,7 +63,7 @@ mod tests {
 
     #[test]
     fn successfully_downloads_file() {
-        let file = download_to_local(2021, 6);
+        let file = download_to_local(2023, 1);
         assert!(file.is_some());
         remove_file(file.unwrap()).unwrap();
     }
