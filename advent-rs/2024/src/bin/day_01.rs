@@ -1,10 +1,10 @@
 // Historian Hysteria
 
-use common::{fetch_input_file, read_file_as_lines};
+use common::read_input_as_lines;
 use std::collections::HashMap;
 
 fn main() {
-    let lines = read_file_as_lines(fetch_input_file(2024, 1).expect("Unable to fetch input"));
+    let lines = read_input_as_lines(2024, 1).expect("Unable to fetch input");
 
     let list1: Vec<u64> = parse_list(&lines, 0);
     let list2: Vec<u64> = parse_list(&lines, 1);
@@ -24,11 +24,11 @@ fn parse_list(lines: &[String], position: usize) -> Vec<u64> {
 }
 
 fn total_distance(mut list1: Vec<u64>, mut list2: Vec<u64>) -> u64 {
-    list1.sort();
-    list2.sort();
+    list1.sort_unstable();
+    list2.sort_unstable();
     list1
         .into_iter()
-        .zip(list2.into_iter())
+        .zip(list2)
         .fold(0, |acc, (a, b)| acc + a.abs_diff(b))
 }
 

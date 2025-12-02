@@ -28,21 +28,21 @@ struct Step((isize, isize));
 impl Add<Step> for Location {
     type Output = Location;
     fn add(self, rhs: Step) -> Self::Output {
-        Self((self.0 .0 + rhs.0 .0, self.0 .1 + rhs.0 .1))
+        Self((self.0.0 + rhs.0.0, self.0.1 + rhs.0.1))
     }
 }
 
 impl Sub<Location> for Location {
     type Output = Step;
     fn sub(self, rhs: Location) -> Self::Output {
-        Step((self.0 .0 - rhs.0 .0, self.0 .1 - rhs.0 .1))
+        Step((self.0.0 - rhs.0.0, self.0.1 - rhs.0.1))
     }
 }
 
 impl Mul<isize> for Step {
     type Output = Step;
     fn mul(self, rhs: isize) -> Self::Output {
-        Self((self.0 .0 * rhs, self.0 .1 * rhs))
+        Self((self.0.0 * rhs, self.0.1 * rhs))
     }
 }
 
@@ -58,6 +58,7 @@ impl Map {
         (0..self.rows).contains(&row) && (0..self.columns).contains(&column)
     }
 
+    #[allow(clippy::similar_names)]
     fn extract_antinodes_at_frequency(
         &self,
         frequency: char,
@@ -105,6 +106,7 @@ impl Map {
 }
 
 impl From<&str> for Map {
+    #[allow(clippy::cast_possible_wrap)]
     fn from(input: &str) -> Self {
         let lines: Vec<&str> = input.split_whitespace().filter(|l| !l.is_empty()).collect();
 

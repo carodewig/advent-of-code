@@ -85,9 +85,9 @@ mod part1 {
         fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
             for block in &self.0 {
                 match block {
-                    Some(id) => f.write_str(&*id.to_string())?,
+                    Some(id) => f.write_str(&id.to_string())?,
                     None => f.write_char('.')?,
-                };
+                }
             }
 
             Ok(())
@@ -158,10 +158,10 @@ mod part2 {
                                     right_pointer += 1;
                                 }
                                 break;
-                            } else {
-                                // right block didn't fit into this gap, move to next block on right
-                                left_pointer += 1;
                             }
+
+                            // right block didn't fit into this gap, move to next block on right
+                            left_pointer += 1;
                         }
                     }
                 }
@@ -225,9 +225,9 @@ mod part2 {
             for block in &self.0 {
                 for _ in 0..block.length {
                     match block.id {
-                        Some(id) => f.write_str(&*id.to_string())?,
+                        Some(id) => f.write_str(&id.to_string())?,
                         None => f.write_char('.')?,
-                    };
+                    }
                 }
             }
 

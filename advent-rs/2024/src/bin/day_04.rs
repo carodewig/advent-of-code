@@ -17,21 +17,23 @@ impl FromStr for WordSearch {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(WordSearch(
-            s.split("\n").map(|l| l.trim().chars().collect()).collect(),
+            s.split('\n').map(|l| l.trim().chars().collect()).collect(),
         ))
     }
 }
 
 impl WordSearch {
-    fn char_at(&self, row: isize, column: isize) -> Option<char> {
-        self.0.get(row as usize)?.get(column as usize).copied()
+    fn char_at(&self, row: i64, column: i64) -> Option<char> {
+        let row = usize::try_from(row).ok()?;
+        let column = usize::try_from(column).ok()?;
+        self.0.get(row)?.get(column).copied()
     }
 
-    fn char_at_eq(&self, row: isize, column: isize, target: char) -> bool {
-        self.char_at(row, column).map_or(false, |c| c == target)
+    fn char_at_eq(&self, row: i64, column: i64, target: char) -> bool {
+        self.char_at(row, column) == Some(target)
     }
 
-    fn search_for_xmas_from(&self, row: isize, column: isize) -> usize {
+    fn search_for_xmas_from(&self, row: i64, column: i64) -> i64 {
         if !self.char_at_eq(row, column, 'X') {
             return 0;
         }
@@ -56,13 +58,15 @@ impl WordSearch {
         matches
     }
 
-    fn search_for_mas_from(&self, row: isize, column: isize) -> usize {
+    fn search_for_mas_from(&self, row: i64, column: i64) -> i64 {
         if !self.char_at_eq(row, column, 'A') {
             return 0;
         }
 
         let ms = ['M', 'S'];
-        let opposite = |c: &char| if c == &'M' { 'S' } else { 'M' };
+        let opposite = |c: &char| {
+            if c == &'M' { 'S' } else { 'M' }
+        };
 
         match (
             self.char_at(row - 1, column - 1),
@@ -81,22 +85,24 @@ impl WordSearch {
         0
     }
 
-    fn find_all_part1(&self) -> usize {
+    #[allow(clippy::cast_possible_wrap)]
+    fn find_all_part1(&self) -> i64 {
         let mut matches = 0;
         for row in 0..self.0.len() {
             for column in 0..self.0[row].len() {
-                matches += self.search_for_xmas_from(row as isize, column as isize);
+                matches += self.search_for_xmas_from(row as i64, column as i64);
             }
         }
 
         matches
     }
 
-    fn find_all_part2(&self) -> usize {
+    #[allow(clippy::cast_possible_wrap)]
+    fn find_all_part2(&self) -> i64 {
         let mut matches = 0;
         for row in 0..self.0.len() {
             for column in 0..self.0[row].len() {
-                matches += self.search_for_mas_from(row as isize, column as isize);
+                matches += self.search_for_mas_from(row as i64, column as i64);
             }
         }
 

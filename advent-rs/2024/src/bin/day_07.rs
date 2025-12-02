@@ -1,7 +1,7 @@
 // Bridge Repair
 
 use common::read_input_as_string;
-use itertools::{repeat_n, Itertools};
+use itertools::{Itertools, repeat_n};
 
 fn main() {
     println!("{}", part1(&read_input_as_string(2024, 7).unwrap()));
@@ -34,9 +34,11 @@ struct Equation {
 }
 
 impl Equation {
+    #[cfg(test)]
     fn new(total: usize, values: Vec<usize>) -> Self {
         Self { total, values }
     }
+
     fn evaluate_left_to_write(&self, operators: &[&&str]) -> usize {
         let mut total = self.values[0];
         for (operator, next_value) in operators.iter().zip(self.values.iter().skip(1)) {
@@ -83,7 +85,7 @@ fn parse(input: &str) -> Vec<Equation> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{parse, part1, part2, Equation};
+    use crate::{Equation, parse, part1, part2};
 
     const SAMPLE: &str = "\
         190: 10 19

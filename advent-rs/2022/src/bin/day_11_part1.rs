@@ -81,7 +81,7 @@ fn main() {
 
 #[cfg(test)]
 mod test {
-    use crate::{monkey_business, Monkey};
+    use crate::{Monkey, monkey_business};
 
     fn test_monkeys() -> Vec<Monkey> {
         vec![

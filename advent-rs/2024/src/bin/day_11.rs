@@ -13,11 +13,7 @@ fn run(input: &str, num_blinks: usize) -> usize {
     let mut total = 0;
     let mut stone_cache = StoneCache::default();
 
-    for stone in input
-        .trim()
-        .split_whitespace()
-        .filter_map(|s| s.parse().ok())
-    {
+    for stone in input.split_whitespace().filter_map(|s| s.parse().ok()) {
         total += stone_cache.recursive_blink(stone, num_blinks);
     }
     total
@@ -42,7 +38,7 @@ impl StoneCache {
 
         let num_stones = match stone {
             0 => self.recursive_blink(1, num_blinks - 1),
-            _ if length % 2 == 0 => {
+            _ if length.is_multiple_of(2) => {
                 let (left, right) = split_stone(&stone_str);
                 self.recursive_blink(left, num_blinks - 1)
                     + self.recursive_blink(right, num_blinks - 1)

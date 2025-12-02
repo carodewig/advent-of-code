@@ -53,10 +53,12 @@ impl Rem<isize> for Location {
 }
 
 impl Location {
+    #[must_use]
     pub fn new(x: isize, y: isize) -> Self {
         Self { x, y }
     }
 
+    #[must_use]
     pub fn neighbors(&self) -> Vec<Self> {
         let mut neighbors = Vec::default();
         for offset in [-1, 1] {

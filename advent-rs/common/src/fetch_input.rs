@@ -4,12 +4,12 @@ use std::{env::temp_dir, fs::File, io::Write, path::PathBuf};
 const COOKIE: &str = "session=INSERT_SESSION_COOKIE_HERE";
 
 fn url(year: u16, day: u8) -> String {
-    format!("https://adventofcode.com/{}/day/{}/input", year, day)
+    format!("https://adventofcode.com/{year}/day/{day}/input")
 }
 
 fn local_path(year: u16, day: u8) -> PathBuf {
     let mut path = temp_dir();
-    path.push(format!("{}_{}.txt", year, day));
+    path.push(format!("{year}_{day}.txt"));
     path
 }
 

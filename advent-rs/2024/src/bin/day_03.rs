@@ -17,7 +17,7 @@ fn part1(memory: &str) -> usize {
     let mul_regex = Regex::new(MUL_PATTERN).unwrap();
     let mut total = 0;
 
-    for (_, [x, y]) in mul_regex.captures_iter(&memory).map(|c| c.extract()) {
+    for (_, [x, y]) in mul_regex.captures_iter(memory).map(|c| c.extract()) {
         let x: usize = x.parse().unwrap();
         let y: usize = y.parse().unwrap();
         total += x * y;
@@ -33,11 +33,8 @@ fn part2(memory: &str) -> usize {
 
     let enabled_ranges = determine_enabled_offsets(memory);
 
-    let mul_offsets: Vec<usize> = mul_regex.find_iter(&memory).map(|m| m.start()).collect();
-    for (capture, offset) in mul_regex
-        .captures_iter(&memory)
-        .zip(mul_offsets.into_iter())
-    {
+    let mul_offsets: Vec<usize> = mul_regex.find_iter(memory).map(|m| m.start()).collect();
+    for (capture, offset) in mul_regex.captures_iter(memory).zip(mul_offsets.into_iter()) {
         // see if this is a useful offset
         if !enabled_ranges.iter().any(|r| r.contains(&offset)) {
             continue;
@@ -57,8 +54,8 @@ fn determine_enabled_offsets(memory: &str) -> Vec<Range<usize>> {
     let do_regex = Regex::new(DO_PATTERN).unwrap();
     let dont_regex = Regex::new(DONT_PATTERN).unwrap();
 
-    let mut do_offsets: Vec<usize> = do_regex.find_iter(&memory).map(|m| m.start()).collect();
-    let dont_offsets: Vec<usize> = dont_regex.find_iter(&memory).map(|m| m.start()).collect();
+    let mut do_offsets: Vec<usize> = do_regex.find_iter(memory).map(|m| m.start()).collect();
+    let dont_offsets: Vec<usize> = dont_regex.find_iter(memory).map(|m| m.start()).collect();
     do_offsets.insert(0, 0);
 
     let mut enabled_ranges: Vec<Range<usize>> = Vec::default();
@@ -92,13 +89,13 @@ mod tests {
     fn test_part1() {
         const SAMPLE: &str =
             "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
-        assert_eq!(part1(&SAMPLE), 161);
+        assert_eq!(part1(SAMPLE), 161);
     }
 
     #[test]
     fn test_part2() {
         const SAMPLE: &str =
             "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
-        assert_eq!(part2(&SAMPLE), 48);
+        assert_eq!(part2(SAMPLE), 48);
     }
 }

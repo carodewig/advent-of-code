@@ -1,6 +1,6 @@
 // Garden Groups
 
-use common::{read_input_as_string, Location};
+use common::{Location, read_input_as_string};
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 
@@ -21,12 +21,12 @@ fn perimeter(region: &Region) -> usize {
 
 fn fence_segments(region: &Region) -> Vec<Segment> {
     let mut segments = Vec::default();
-    for plot in region.iter() {
+    for plot in region {
         // index segments so that top left corner has same location as plot
         let top_left = *plot;
-        let top_right = Location::new(plot.row, plot.column + 1);
-        let bottom_left = Location::new(plot.row + 1, plot.column);
-        let bottom_right = Location::new(plot.row + 1, plot.column + 1);
+        let top_right = Location::new(plot.x, plot.y + 1);
+        let bottom_left = Location::new(plot.x + 1, plot.y);
+        let bottom_right = Location::new(plot.x + 1, plot.y + 1);
 
         segments.push(Segment::new(top_left, top_right));
         segments.push(Segment::new(top_right, bottom_right));
@@ -111,7 +111,7 @@ fn sides(region: &Region) -> usize {
     segments.len()
 }
 
-fn would_merge_plus_sign(segments: &Vec<Segment>, location: Location) -> bool {
+fn would_merge_plus_sign(segments: &[Segment], location: Location) -> bool {
     // see if there are four segments at this location
     let segments_into_this_location = segments
         .iter()
@@ -133,7 +133,7 @@ impl Segment {
         }
     }
     fn is_horizontal(&self) -> bool {
-        self.location1.row == self.location2.row
+        self.location1.y == self.location2.y
     }
 }
 
@@ -207,9 +207,15 @@ impl PlantMap {
 }
 
 impl<S: AsRef<str>> From<S> for PlantMap {
+    #[allow(clippy::cast_possible_wrap)]
     fn from(input: S) -> Self {
         let mut map = HashMap::default();
-        for (row, line) in input.as_ref().trim().split_whitespace().enumerate() {
+        for (row, line) in input
+            .as_ref()
+            .split_whitespace()
+            .filter(|line| !line.is_empty())
+            .enumerate()
+        {
             for (column, char) in line.chars().enumerate() {
                 map.insert(Location::new(row as isize, column as isize), char);
             }

@@ -97,7 +97,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{bathroom_code, Keypad};
+    use super::{Keypad, bathroom_code};
 
     #[test]
     fn test_bathroom_code() {
