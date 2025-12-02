@@ -105,7 +105,7 @@ fn parse(input: &str) -> (Vec<Rule>, Vec<ManualUpdate>) {
     let mut rules = Vec::default();
     let mut updates = Vec::default();
 
-    for line in input.split("\n").filter(|l| !l.is_empty()) {
+    for line in input.split('\n').filter(|l| !l.is_empty()) {
         if line.contains('|') {
             let mut elements = line.trim().split('|');
             let a = elements.next().unwrap().parse().unwrap();
@@ -128,7 +128,7 @@ fn parse(input: &str) -> (Vec<Rule>, Vec<ManualUpdate>) {
 
 #[cfg(test)]
 mod tests {
-    use crate::{parse, part1, part2, RuleSet};
+    use crate::{RuleSet, parse, part1, part2};
 
     const SAMPLE: &str = "\
         47|53

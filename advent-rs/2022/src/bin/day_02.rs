@@ -32,7 +32,13 @@ impl Shape {
         const SHAPES: [Shape; 3] = [Shape::Rock, Shape::Paper, Shape::Scissors];
         SHAPES
             .iter()
-            .filter_map(|s| if s.vs(other) == result { Some(s) } else { None })
+            .filter_map(|s| {
+                if s.vs(other) == result {
+                    Some(s)
+                } else {
+                    None
+                }
+            })
             .next()
             .unwrap()
             .clone()

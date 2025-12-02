@@ -85,7 +85,7 @@ fn count_safe_reports_part2(reports: Vec<Report>) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use crate::{count_safe_reports_part1, count_safe_reports_part2, Report};
+    use crate::{Report, count_safe_reports_part1, count_safe_reports_part2};
 
     fn get_reports() -> Vec<Report> {
         vec![

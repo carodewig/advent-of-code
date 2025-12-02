@@ -24,11 +24,11 @@ fn parse_list(lines: &[String], position: usize) -> Vec<u64> {
 }
 
 fn total_distance(mut list1: Vec<u64>, mut list2: Vec<u64>) -> u64 {
-    list1.sort();
-    list2.sort();
+    list1.sort_unstable();
+    list2.sort_unstable();
     list1
         .into_iter()
-        .zip(list2.into_iter())
+        .zip(list2)
         .fold(0, |acc, (a, b)| acc + a.abs_diff(b))
 }
 

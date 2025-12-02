@@ -1,7 +1,7 @@
 // Claw Contraption
 
 use common::Location;
-use common::{read_input_as_string, Step};
+use common::{Step, read_input_as_string};
 use regex::Regex;
 use std::num::ParseIntError;
 
@@ -25,8 +25,8 @@ fn part1(input: &str) -> isize {
 fn part2(input: &str) -> isize {
     let machines = parse(input);
     let step_offset = Step {
-        x: 10000000000000,
-        y: 10000000000000,
+        x: 10_000_000_000_000,
+        y: 10_000_000_000_000,
     };
     machines
         .into_iter()
@@ -100,6 +100,7 @@ impl ClawMachine {
 impl TryFrom<[&str; 6]> for ClawMachine {
     type Error = ParseIntError;
 
+    #[allow(clippy::similar_names)]
     fn try_from(values: [&str; 6]) -> Result<Self, Self::Error> {
         let [step_a_x, step_a_y, step_b_x, step_b_y, prize_x, prize_y] = values;
         Ok(Self {
@@ -125,7 +126,7 @@ fn parse(input: &str) -> Vec<ClawMachine> {
 
     for (_, matches) in regex.captures_iter(input).map(|c| c.extract()) {
         if let Ok(machine) = ClawMachine::try_from(matches) {
-            machines.push(machine)
+            machines.push(machine);
         }
     }
 
@@ -134,7 +135,7 @@ fn parse(input: &str) -> Vec<ClawMachine> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{parse, part1, part2, ClawMachine};
+    use crate::{ClawMachine, parse, part1, part2};
     use common::{Location, Step};
 
     const SAMPLE: &str = "
@@ -164,7 +165,7 @@ mod tests {
                 button_b: Step { x: 22, y: 67 },
                 prize: Location { x: 8400, y: 5400 },
             }
-        )
+        );
     }
 
     #[test]
@@ -174,6 +175,6 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(SAMPLE), 875318608908);
+        assert_eq!(part2(SAMPLE), 875_318_608_908);
     }
 }

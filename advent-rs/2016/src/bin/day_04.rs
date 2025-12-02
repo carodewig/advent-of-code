@@ -99,9 +99,11 @@ mod tests {
         assert!(Room::parse("aaaaa-bbb-z-y-x-123[abxyz]").unwrap().is_real());
         assert!(Room::parse("a-b-c-d-e-f-g-h-987[abcde]").unwrap().is_real());
         assert!(Room::parse("not-a-real-room-404[oarel]").unwrap().is_real());
-        assert!(!Room::parse("totally-real-room-200[decoy]")
-            .unwrap()
-            .is_real());
+        assert!(
+            !Room::parse("totally-real-room-200[decoy]")
+                .unwrap()
+                .is_real()
+        );
     }
 
     #[test]

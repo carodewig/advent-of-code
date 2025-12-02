@@ -43,7 +43,7 @@ fn part2(input: &str) -> usize {
 
         let mut modified_map = map.clone();
         modified_map.0.insert(*location, true);
-        if stuck_in_a_loop(modified_map, guard) {
+        if stuck_in_a_loop(&modified_map, guard) {
             loops += 1;
         }
     }
@@ -51,7 +51,7 @@ fn part2(input: &str) -> usize {
     loops
 }
 
-fn stuck_in_a_loop(map: Map, mut guard: Guard) -> bool {
+fn stuck_in_a_loop(map: &Map, mut guard: Guard) -> bool {
     // need guard to end up in the same location and direction to ensure a loop
     let mut visited: HashSet<(Location, Direction)> = HashSet::default();
 
@@ -123,12 +123,12 @@ fn parse(input: &str) -> (Map, Guard) {
 
     for (row, line) in input
         .split('\n')
-        .map(|l| l.trim())
+        .map(str::trim)
         .filter(|l| !l.is_empty())
         .enumerate()
     {
         for (column, char) in line.trim().chars().enumerate() {
-            let location = (row as i32, column as i32);
+            let location = (i32::try_from(row).unwrap(), i32::try_from(column).unwrap());
 
             // check for guard
             if char == '^' {

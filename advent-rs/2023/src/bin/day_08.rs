@@ -71,11 +71,7 @@ fn count_steps(map_text: &str) -> usize {
 fn next_node(map: &Map, direction: Direction, current_node: &Node) -> Node {
     use Direction::Left;
     let (left, right) = map.get(current_node).unwrap().clone();
-    if direction == Left {
-        left
-    } else {
-        right
-    }
+    if direction == Left { left } else { right }
 }
 
 fn find_cycle_length(map: &Map, directions: &Directions, start_node: &String) -> usize {

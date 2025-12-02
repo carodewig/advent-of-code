@@ -3,7 +3,7 @@
 use advent_rs_2016::read_input::read_file;
 use std::collections::HashMap;
 
-fn decode_messages(messages: String, most_freq: bool) -> String {
+fn decode_messages(messages: &str, most_freq: bool) -> String {
     let mut char_frequency: HashMap<usize, HashMap<char, usize>> = HashMap::new();
     let mut message_length: usize = 0;
 
@@ -12,7 +12,7 @@ fn decode_messages(messages: String, most_freq: bool) -> String {
         for (index, letter) in message.chars().enumerate() {
             *char_frequency
                 .entry(index)
-                .or_insert_with(HashMap::new)
+                .or_default()
                 .entry(letter)
                 .or_insert(0) += 1;
         }
@@ -36,9 +36,9 @@ fn decode_messages(messages: String, most_freq: bool) -> String {
 
 fn main() {
     // umcvzsmw
-    println!("{}", decode_messages(read_file("06.txt"), true));
+    println!("{}", decode_messages(&read_file("06.txt"), true));
     // rwqoacfz
-    println!("{}", decode_messages(read_file("06.txt"), false));
+    println!("{}", decode_messages(&read_file("06.txt"), false));
 }
 
 #[cfg(test)]
@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn test_decode_messages() {
         let messages = "eedadn\ndrvtee\neandsr\nraavrd\natevrs\ntsrnev\nsdttsa\nrasrtv\nnssdts\nntnada\nsvetve\ntesnvt\nvntsnd\nvrdear\ndvrsen\nenarar";
-        assert_eq!("easter", &decode_messages(String::from(messages), true));
-        assert_eq!("advent", &decode_messages(String::from(messages), false));
+        assert_eq!("easter", &decode_messages(messages, true));
+        assert_eq!("advent", &decode_messages(messages, false));
     }
 }

@@ -1,6 +1,6 @@
 // Hoof It
 
-use common::{read_input_as_string, Location};
+use common::{Location, read_input_as_string};
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 
@@ -11,9 +11,9 @@ fn main() {
 }
 
 #[derive(Default, Debug, Clone)]
-struct TopographicMap(HashMap<Location, u8>);
+struct TopographicMap(HashMap<Location, u32>);
 impl TopographicMap {
-    fn elevation(&self, location: Location) -> Option<u8> {
+    fn elevation(&self, location: Location) -> Option<u32> {
         self.0.get(&location).copied()
     }
     fn trailheads(&self) -> impl Iterator<Item = Location> + '_ {
@@ -64,7 +64,7 @@ impl TopographicMap {
         let elevation_from = self.elevation(from).unwrap();
         let elevation_to = self.elevation(to).unwrap();
 
-        let ways = if elevation_from >= elevation_to {
+        if elevation_from >= elevation_to {
             0
         } else if elevation_from + 1 == elevation_to {
             usize::from(from.neighbors().iter().contains(&to))
@@ -73,13 +73,11 @@ impl TopographicMap {
                 .into_iter()
                 .filter(|n| {
                     self.elevation(*n)
-                        .map_or(false, |elevation_n| elevation_from + 1 == elevation_n)
+                        .is_some_and(|elevation_n| elevation_from + 1 == elevation_n)
                 })
                 .map(|n| self.ways_to_reach(n, to))
                 .sum()
-        };
-
-        ways
+        }
     }
 
     fn part1(&self) -> usize {
@@ -96,12 +94,17 @@ impl TopographicMap {
 }
 
 impl From<&str> for TopographicMap {
+    #[allow(clippy::cast_possible_wrap)]
     fn from(input: &str) -> Self {
         let mut topographic_map = HashMap::default();
-        for (row, line) in input.trim().split_whitespace().enumerate() {
+        for (row, line) in input
+            .split_whitespace()
+            .filter(|line| !line.is_empty())
+            .enumerate()
+        {
             for (column, char) in line.chars().enumerate() {
                 let location = Location::new(row as isize, column as isize);
-                let elevation = char.to_digit(10).unwrap() as u8;
+                let elevation = char.to_digit(10).unwrap();
                 topographic_map.insert(location, elevation);
             }
         }
