@@ -24,9 +24,9 @@ fn fence_segments(region: &Region) -> Vec<Segment> {
     for plot in region.iter() {
         // index segments so that top left corner has same location as plot
         let top_left = *plot;
-        let top_right = Location::new(plot.row, plot.column + 1);
-        let bottom_left = Location::new(plot.row + 1, plot.column);
-        let bottom_right = Location::new(plot.row + 1, plot.column + 1);
+        let top_right = Location::new(plot.x, plot.y + 1);
+        let bottom_left = Location::new(plot.x + 1, plot.y);
+        let bottom_right = Location::new(plot.x + 1, plot.y + 1);
 
         segments.push(Segment::new(top_left, top_right));
         segments.push(Segment::new(top_right, bottom_right));
@@ -133,7 +133,7 @@ impl Segment {
         }
     }
     fn is_horizontal(&self) -> bool {
-        self.location1.row == self.location2.row
+        self.location1.y == self.location2.y
     }
 }
 

@@ -1,10 +1,10 @@
 // Historian Hysteria
 
-use common::{fetch_input_file, read_file_as_lines};
+use common::read_input_as_lines;
 use std::collections::HashMap;
 
 fn main() {
-    let lines = read_file_as_lines(fetch_input_file(2024, 1).expect("Unable to fetch input"));
+    let lines = read_input_as_lines(2024, 1).expect("Unable to fetch input");
 
     let list1: Vec<u64> = parse_list(&lines, 0);
     let list2: Vec<u64> = parse_list(&lines, 1);

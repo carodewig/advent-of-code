@@ -1,6 +1,6 @@
 // Red-Nosed Reports
 
-use common::{fetch_input_file, read_file_as_lines};
+use common::read_input_as_lines;
 use itertools::Itertools;
 
 type Report = Vec<u16>;
@@ -11,7 +11,7 @@ fn main() {
 }
 
 fn fetch_reports() -> Vec<Report> {
-    let lines = read_file_as_lines(fetch_input_file(2024, 2).expect("Unable to fetch input"));
+    let lines = read_input_as_lines(2024, 2).expect("Unable to fetch input");
 
     lines
         .into_iter()
