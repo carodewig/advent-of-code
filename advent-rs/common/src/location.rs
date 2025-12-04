@@ -59,8 +59,9 @@ impl Location {
     }
 
     #[must_use]
+    /// Neighbors in the cardinal directions: N, S, E, W.
     pub fn neighbors(&self) -> Vec<Self> {
-        let mut neighbors = Vec::default();
+        let mut neighbors = Vec::with_capacity(4);
         for offset in [-1, 1] {
             neighbors.push(Location {
                 x: self.x + offset,
@@ -72,5 +73,39 @@ impl Location {
             });
         }
         neighbors
+    }
+
+    #[must_use]
+    /// Neighbors in the cardinal directions: N, S, E, W.
+    pub fn cardinal_neighbors(&self) -> Vec<Self> {
+        self.neighbors()
+    }
+
+    #[must_use]
+    /// Neighbors in the ordinal directions: NW, NE, SW, SE.
+    pub fn ordinal_neighbors(&self) -> Vec<Self> {
+        let mut neighbors = Vec::with_capacity(4);
+        for offset in [-1, 1] {
+            neighbors.push(Location {
+                x: self.x + offset,
+                y: self.y + offset,
+            });
+            neighbors.push(Location {
+                x: self.x + offset,
+                y: self.y - offset,
+            });
+        }
+        neighbors
+    }
+
+    #[must_use]
+    /// Neighbors in the union of the cardinal and ordinal directions: N, S, E, W, NW, NE, SW, SE.
+    ///
+    /// See the [compass rose](https://en.wikipedia.org/wiki/Points_of_the_compass#8-wind_compass_rose).
+    pub fn principal_neighbors(&self) -> Vec<Self> {
+        self.cardinal_neighbors()
+            .into_iter()
+            .chain(self.ordinal_neighbors())
+            .collect()
     }
 }
